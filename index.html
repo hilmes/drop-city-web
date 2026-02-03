@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drop City — Leave Your Mark in Space</title>
+<meta name="description" content="AR graffiti for the real world. Drop encrypted messages, art, and ephemeral content pinned to GPS coordinates. Join the beta.">
+<meta name="theme-color" content="#0A1F5C">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Drop City — Leave Your Mark in Space">
+<meta property="og:description" content="AR graffiti for the real world. Drop encrypted messages pinned to GPS coordinates.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/assets/og-image.jpg">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════
+   DROP CITY LANDING — PYTHAGOREAN TREE PALETTE
+   Colors extracted from Drop Artists, 1967
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* Primary palette — Pythagorean Tree painting */
+  --navy:        #0A1F5C;
+  --navy-deep:   #060F30;
+  --coral:       #E8654A;
+  --pink-soft:   #E8A8C0;
+  --hot-pink:    #E0287D;
+  --red:         #E01A24;
+  --crimson:     #C41835;
+  --cyan:        #3DD9D9;
+  --aqua:        #5CE0E0;
+  --sky:         #4AADCE;
+  --rose:        #F27088;
+  --peach:       #F0988A;
+
+  /* Functional */
+  --bg:          #060F30;
+  --text:        #F0F0EC;
+  --text-muted:  rgba(240, 240, 236, 0.5);
+  --grid:        8px;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--hot-pink);
+  color: var(--text);
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY — Swiss-Hara
+   ═══════════════════════════════════════════ */
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+h1 {
+  font-size: clamp(40px, 8vw, 96px);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+}
+
+h2 {
+  font-size: clamp(28px, 5vw, 56px);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+h3 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+p {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 calc(var(--grid) * 4);
+}
+
+section {
+  padding: calc(var(--grid) * 16) 0;
+}
+
+/* ═══════════════════════════════════════════
+   GEOMETRIC BACKGROUND — Animated SVG Canvas
+   ═══════════════════════════════════════════ */
+
+.geo-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.12;
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+   ═══════════════════════════════════════════ */
+
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: calc(var(--grid) * 3) calc(var(--grid) * 4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(6, 15, 48, 0.7);
+  border-bottom: 1px solid rgba(240, 240, 236, 0.06);
+  transition: background 0.3s;
+}
+
+.nav-logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: calc(var(--grid) * 4);
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: var(--cyan);
+}
+
+.nav-cta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--navy-deep) !important;
+  background: var(--cyan);
+  padding: calc(var(--grid) * 1) calc(var(--grid) * 3);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.nav-cta:hover {
+  background: var(--aqua);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  padding-top: calc(var(--grid) * 12);
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--grid) * 8);
+  align-items: center;
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--grid) * 4);
+}
+
+.hero-tagline {
+  color: var(--cyan);
+}
+
+.hero h1 span.accent {
+  background: linear-gradient(135deg, var(--coral), var(--hot-pink), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: calc(var(--grid) * 2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Phone mockup */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.phone-frame {
+  width: 280px;
+  height: 560px;
+  background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+  border: 2px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-screen {
+  position: absolute;
+  inset: 8px;
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.phone-screen .drop-pin {
+  width: 24px;
+  height: 24px;
+  background: var(--hot-pink);
+  position: absolute;
+  animation: float 3s ease-in-out infinite;
+}
+
+.phone-screen .drop-pin:nth-child(1) { top: 25%; left: 30%; animation-delay: 0s; background: var(--coral); }
+.phone-screen .drop-pin:nth-child(2) { top: 45%; left: 60%; animation-delay: 0.5s; background: var(--cyan); }
+.phone-screen .drop-pin:nth-child(3) { top: 65%; left: 40%; animation-delay: 1s; background: var(--hot-pink); }
+.phone-screen .drop-pin:nth-child(4) { top: 35%; left: 70%; animation-delay: 1.5s; background: var(--rose); }
+.phone-screen .drop-pin:nth-child(5) { top: 75%; left: 65%; animation-delay: 2s; background: var(--peach); }
+
+.phone-screen .screen-label {
+  position: absolute;
+  bottom: 16px;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Floating geometric shapes around phone */
+.geo-float {
+  position: absolute;
+  opacity: 0.4;
+  animation: geo-drift 6s ease-in-out infinite;
+}
+
+.geo-float.triangle {
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 52px solid var(--coral);
+}
+
+.geo-float.square {
+  width: 40px;
+  height: 40px;
+  background: var(--cyan);
+}
+
+.geo-float.diamond {
+  width: 35px;
+  height: 35px;
+  background: var(--hot-pink);
+  transform: rotate(45deg);
+}
+
+.geo-float:nth-child(1) { top: 5%; right: -10%; animation-delay: 0s; }
+.geo-float:nth-child(2) { bottom: 15%; left: -15%; animation-delay: 1s; }
+.geo-float:nth-child(3) { top: 40%; right: -20%; animation-delay: 2s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes geo-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-20px) rotate(15deg); opacity: 0.6; }
+}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--grid) * 1);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: calc(var(--grid) * 2) calc(var(--grid) * 4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--cyan);
+  color: var(--navy-deep);
+}
+
+.btn-primary:hover {
+  background: var(--aqua);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(240, 240, 236, 0.2);
+}
+
+.btn-outline:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.btn-hot {
+  background: var(--hot-pink);
+  color: var(--text);
+}
+
+.btn-hot:hover {
+  background: var(--rose);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════
+   FEATURES
+   ═══════════════════════════════════════════ */
+
+.features {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--grid) * 6);
+  margin-top: calc(var(--grid) * 8);
+}
+
+.feature-card {
+  padding: calc(var(--grid) * 4);
+  border: 1px solid rgba(240, 240, 236, 0.06);
+  background: rgba(10, 31, 92, 0.3);
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.feature-card:hover {
+  border-color: rgba(61, 217, 217, 0.3);
+  transform: translateY(-4px);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: calc(var(--grid) * 3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon .geo-shape {
+  transition: transform 0.3s;
+}
+
+.feature-card:hover .geo-shape {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.feature-card h3 {
+  margin-bottom: calc(var(--grid) * 2);
+  color: var(--text);
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: none;
+}
+
+/* ═══════════════════════════════════════════
+   HOW IT WORKS
+   ═══════════════════════════════════════════ */
+
+.how-it-works {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--grid) * 8);
+  margin-top: calc(var(--grid) * 8);
+}
+
+.step {
+  position: relative;
+}
+
+.step-number {
+  font-size: clamp(64px, 10vw, 120px);
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: calc(var(--grid) * 2);
+  -webkit-text-stroke: 1px var(--cyan);
+  color: transparent;
+}
+
+.step h3 {
+  margin-bottom: calc(var(--grid) * 2);
+}
+
+.step p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* connector line between steps */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 60px;
+  right: -24px;
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+}
+
+/* ═══════════════════════════════════════════
+   BETA CTA
+   ═══════════════════════════════════════════ */
+
+.beta-cta {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+}
+
+.beta-cta .container {
+  max-width: 640px;
+}
+
+.beta-cta h2 {
+  margin-bottom: calc(var(--grid) * 3);
+}
+
+.beta-cta p {
+  margin: 0 auto calc(var(--grid) * 6);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.email-form {
+  display: flex;
+  gap: 0;
+  max-width: 480px;
+  margin: 0 auto calc(var(--grid) * 3);
+}
+
+.email-form input {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: calc(var(--grid) * 2) calc(var(--grid) * 3);
+  background: rgba(240, 240, 236, 0.06);
+  border: 1px solid rgba(240, 240, 236, 0.1);
+  border-right: none;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.email-form input::placeholder {
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.email-form input:focus {
+  border-color: var(--cyan);
+}
+
+.email-form button {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: calc(var(--grid) * 2) calc(var(--grid) * 4);
+  background: var(--hot-pink);
+  color: var(--text);
+  border: 1px solid var(--hot-pink);
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.email-form button:hover {
+  background: var(--rose);
+  border-color: var(--rose);
+}
+
+.beta-note {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   PYTHAGOREAN TREE DIVIDER (geometric strip)
+   ═══════════════════════════════════════════ */
+
+.geo-divider {
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--coral) 0%,
+    var(--hot-pink) 20%,
+    var(--red) 40%,
+    var(--crimson) 50%,
+    var(--rose) 60%,
+    var(--sky) 80%,
+    var(--cyan) 100%
+  );
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+
+footer {
+  position: relative;
+  z-index: 1;
+  padding: calc(var(--grid) * 8) 0;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--grid) * 1);
+}
+
+.footer-logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.footer-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 320px;
+}
+
+.footer-right {
+  display: flex;
+  gap: calc(var(--grid) * 4);
+}
+
+.footer-right a {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-right a:hover {
+  color: var(--cyan);
+}
+
+/* ═══════════════════════════════════════════
+   EASTER EGG — History Panel (hover reveal)
+   ═══════════════════════════════════════════ */
+
+.easter-egg {
+  position: relative;
+  z-index: 1;
+  padding: calc(var(--grid) * 12) 0;
+  background: rgba(10, 31, 92, 0.15);
+  border-top: 1px solid rgba(240, 240, 236, 0.04);
+  cursor: default;
+}
+
+.easter-egg .container {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: calc(var(--grid) * 8);
+  align-items: start;
+}
+
+.egg-image {
+  width: 200px;
+  height: 200px;
+  border: 1px solid rgba(240, 240, 236, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.egg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.2);
+  transition: transform 0.6s;
+}
+
+.easter-egg:hover .egg-image img {
+  transform: scale(1.05);
+}
+
+.egg-text h3 {
+  margin-bottom: calc(var(--grid) * 1);
+  color: var(--coral);
+}
+
+.egg-text .egg-year {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: calc(var(--grid) * 3);
+}
+
+.egg-text p {
+  font-size: 14px;
+  color: rgba(240, 240, 236, 0.4);
+  max-width: 520px;
+}
+
+.egg-text .egg-quote {
+  font-style: italic;
+  font-weight: 200;
+  font-size: 18px;
+  color: rgba(240, 240, 236, 0.3);
+  margin-top: calc(var(--grid) * 3);
+  padding-left: calc(var(--grid) * 3);
+  border-left: 2px solid var(--coral);
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children */
+.stagger .fade-in:nth-child(1) { transition-delay: 0s; }
+.stagger .fade-in:nth-child(2) { transition-delay: 0.1s; }
+.stagger .fade-in:nth-child(3) { transition-delay: 0.2s; }
+.stagger .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+/* Geometric pattern animation for SVG */
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-geo {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.15; }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-text {
+    align-items: center;
+  }
+
+  .hero p {
+    margin: 0 auto;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-visual {
+    order: -1;
+  }
+
+  .phone-frame {
+    width: 220px;
+    height: 440px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: calc(var(--grid) * 6);
+  }
+
+  .step:not(:last-child)::after {
+    display: none;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .easter-egg .container {
+    grid-template-columns: 1fr;
+  }
+
+  .egg-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: calc(var(--grid) * 4);
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 calc(var(--grid) * 3);
+  }
+
+  section {
+    padding: calc(var(--grid) * 10) 0;
+  }
+
+  .email-form {
+    flex-direction: column;
+  }
+
+  .email-form input {
+    border-right: 1px solid rgba(240, 240, 236, 0.1);
+    border-bottom: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     GEOMETRIC BACKGROUND CANVAS
+     Animated fractal-inspired triangles
+     ═══════════════════════════════════════════ -->
+<svg class="geo-canvas" id="geoCanvas" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<!-- ═══════════════════════════════════════════
+     NAV
+     ═══════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo">Drop City</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#origins">Origins</a></li>
+  </ul>
+  <a href="#beta" class="nav-cta">Join Beta</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <span class="label hero-tagline">Geospatial AR Graffiti for iOS</span>
+        <h1>Leave your<br><span class="accent">mark in space</span></h1>
+        <p>Drop encrypted messages, art, and ephemeral content pinned to real-world GPS coordinates. Only visible through the lens, only found by those who walk there.</p>
+        <div class="hero-actions">
+          <a href="#beta" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Join TestFlight
+          </a>
+          <a href="#how" class="btn btn-outline">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="geo-float triangle"></div>
+        <div class="geo-float square"></div>
+        <div class="geo-float diamond"></div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="drop-pin"></div>
+            <div class="drop-pin"></div>
+            <div class="drop-pin"></div>
+            <div class="drop-pin"></div>
+            <div class="drop-pin"></div>
+            <span class="screen-label">AR View Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="geo-divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     FEATURES
+     ═══════════════════════════════════════════ -->
+<section class="features" id="features">
+  <div class="container">
+    <span class="label">Capabilities</span>
+    <h2 style="margin-top: calc(var(--grid) * 2)">Digital drops.<br>Physical space.</h2>
+    <div class="features-grid stagger">
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <polygon points="20,2 38,38 2,38" fill="none" stroke="#E8654A" stroke-width="2"/>
+            <polygon points="20,12 30,32 10,32" fill="#E8654A" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>AR Drops</h3>
+        <p>Pin photos, text, and drawings to GPS coordinates. Content floats in augmented reality, discoverable only when you walk to the exact spot.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <rect x="4" y="4" width="32" height="32" fill="none" stroke="#3DD9D9" stroke-width="2" transform="rotate(45 20 20)"/>
+            <rect x="10" y="10" width="20" height="20" fill="#3DD9D9" opacity="0.3" transform="rotate(45 20 20)"/>
+          </svg>
+        </div>
+        <h3>End-to-End Encryption</h3>
+        <p>Every drop is encrypted before it leaves your device. Zero-knowledge architecture means nobody — not even us — can read your messages.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="16" fill="none" stroke="#E0287D" stroke-width="2" stroke-dasharray="4 4"/>
+            <circle cx="20" cy="20" r="8" fill="#E0287D" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>Ephemeral Content</h3>
+        <p>Set expiration timers on your drops. 24 hours, one week, or until the first person finds it. Digital graffiti that fades like the real thing.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <polygon points="20,2 38,20 20,38 2,20" fill="none" stroke="#F27088" stroke-width="2"/>
+            <polygon points="20,10 30,20 20,30 10,20" fill="#F27088" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>Proximity Alerts</h3>
+        <p>Get notified when you're near undiscovered drops. Your phone buzzes with possibility — someone left something here for you to find.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <path d="M4,30 L14,10 L24,25 L34,5" fill="none" stroke="#4AADCE" stroke-width="2"/>
+            <path d="M4,35 L14,15 L24,30 L34,10" fill="none" stroke="#4AADCE" stroke-width="1" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>Social Layer</h3>
+        <p>Follow creators, discover trending drop zones, react to what you find. A social network where the feed is the world around you.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg class="geo-shape" width="40" height="40" viewBox="0 0 40 40">
+            <polygon points="20,2 26,15 38,15 28,24 32,38 20,30 8,38 12,24 2,15 14,15" fill="none" stroke="#F0988A" stroke-width="2"/>
+            <polygon points="20,10 24,18 32,18 26,24 28,32 20,27 12,32 14,24 8,18 16,18" fill="#F0988A" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>Geodesic Discovery</h3>
+        <p>Drop zones form organic clusters — like geodesic nodes on a map. Explore your city's hidden layer of digital expression.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOW IT WORKS
+     ═══════════════════════════════════════════ -->
+<section class="how-it-works" id="how">
+  <div class="container">
+    <span class="label">How It Works</span>
+    <h2 style="margin-top: calc(var(--grid) * 2)">Three steps to<br>leave your mark</h2>
+    <div class="steps stagger">
+      <div class="step fade-in">
+        <div class="step-number">01</div>
+        <h3>Create a Drop</h3>
+        <p>Capture a photo, type a message, or sketch a drawing. Choose how long it lives — hours, days, or until someone finds it.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">02</div>
+        <h3>Pin to Space</h3>
+        <p>Your drop is encrypted and anchored to your exact GPS coordinates. It exists in augmented reality, invisible to the naked eye.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">03</div>
+        <h3>Others Discover</h3>
+        <p>When someone walks near your drop, their phone alerts them. They open the camera, point, and your message materializes in AR.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="geo-divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     BETA CTA
+     ═══════════════════════════════════════════ -->
+<section class="beta-cta" id="beta">
+  <div class="container">
+    <span class="label" style="color: var(--hot-pink);">Beta Access</span>
+    <h2 style="margin-top: calc(var(--grid) * 2)">Join the<br><span style="color: var(--cyan)">first drop</span></h2>
+    <p>We're building Drop City with a small group of early explorers. Sign up for TestFlight access and be among the first to leave your mark.</p>
+    <form class="email-form" id="betaForm" onsubmit="handleBeta(event)">
+      <input type="email" placeholder="your@email.com" required aria-label="Email address">
+      <button type="submit">Request Access</button>
+    </form>
+    <p class="beta-note">iOS 17+ required · No spam, ever · Spots are limited</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EASTER EGG — Historical Drop City
+     ═══════════════════════════════════════════ -->
+<section class="easter-egg" id="origins">
+  <div class="container">
+    <div class="egg-image">
+      <img src="assets/pythagorean-tree.jpg" alt="Pythagorean Tree, by Drop Artists, 1967" loading="lazy">
+    </div>
+    <div class="egg-text">
+      <h3>The Original Drop City</h3>
+      <p class="egg-year">Trinidad, Colorado · 1960–1979</p>
+      <p>The first rural hippie commune. Four art students bought seven acres of desert and built geodesic domes from car roofs. They won Buckminster Fuller's Dymaxion Award in 1967. They called their art "droppings" — impromptu performances and constructions dropped into the landscape.</p>
+      <p class="egg-quote">"The land is forever free and open to all people."<br>— Drop City deed stipulation</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span class="footer-logo">Drop City</span>
+        <p class="footer-sub">Geospatial AR graffiti. Encrypted. Ephemeral. Real.</p>
+        <p class="footer-sub" style="font-size: 11px; margin-top: 8px;">© 2025 Drop City. All rights reserved.</p>
+      </div>
+      <div class="footer-right">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="https://twitter.com" target="_blank" rel="noopener">Twitter</a>
+        <a href="mailto:hello@dropcity.app">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════ -->
+<script>
+// ─── Geometric Background Canvas ─────────────────────────
+// Generates animated Pythagorean-tree-inspired triangles
+(function() {
+  const canvas = document.getElementById('geoCanvas');
+  const ns = 'http://www.w3.org/2000/svg';
+  const colors = ['#E8654A', '#E0287D', '#E01A24', '#3DD9D9', '#4AADCE', '#F27088', '#F0988A', '#C41835'];
+
+  function createTriangle(x, y, size, color, delay) {
+    const tri = document.createElementNS(ns, 'polygon');
+    const h = size * 0.866;
+    const points = `${x},${y - h * 0.67} ${x - size / 2},${y + h * 0.33} ${x + size / 2},${y + h * 0.33}`;
+    tri.setAttribute('points', points);
+    tri.setAttribute('fill', color);
+    tri.setAttribute('opacity', '0');
+    tri.style.animation = `pulse-geo 8s ease-in-out ${delay}s infinite`;
+    return tri;
+  }
+
+  function populate() {
+    canvas.innerHTML = '';
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+    // Scatter geometric shapes
+    for (let i = 0; i < 40; i++) {
+      const x = Math.random() * w;
+      const y = Math.random() * h;
+      const size = 20 + Math.random() * 80;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const delay = Math.random() * 8;
+
+      if (Math.random() > 0.5) {
+        canvas.appendChild(createTriangle(x, y, size, color, delay));
+      } else {
+        const rect = document.createElementNS(ns, 'rect');
+        const angle = Math.random() * 90;
+        rect.setAttribute('x', x - size / 2);
+        rect.setAttribute('y', y - size / 2);
+        rect.setAttribute('width', size);
+        rect.setAttribute('height', size);
+        rect.setAttribute('fill', color);
+        rect.setAttribute('opacity', '0');
+        rect.setAttribute('transform', `rotate(${angle} ${x} ${y})`);
+        rect.style.animation = `pulse-geo ${6 + Math.random() * 6}s ease-in-out ${delay}s infinite`;
+        canvas.appendChild(rect);
+      }
+    }
+  }
+
+  populate();
+  window.addEventListener('resize', populate);
+})();
+
+// ─── Scroll reveal ───────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── Beta form handler ───────────────────────────────────
+function handleBeta(e) {
+  e.preventDefault();
+  const input = e.target.querySelector('input');
+  const btn = e.target.querySelector('button');
+  const email = input.value;
+
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  // Simulate API call
+  setTimeout(() => {
+    btn.textContent = '✓ You\'re In';
+    btn.style.background = '#3DD9D9';
+    btn.style.borderColor = '#3DD9D9';
+    btn.style.color = '#060F30';
+    input.value = '';
+    input.placeholder = 'Check your inbox';
+    input.disabled = true;
+  }, 800);
+}
+
+// ─── Smooth scroll for nav links ─────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
