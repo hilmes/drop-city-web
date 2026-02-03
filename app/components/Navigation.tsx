@@ -33,10 +33,10 @@ export function Navigation() {
               Features
             </a>
             <a 
-              href="#"
+              href="#access"
               className="btn-primary text-tiny"
             >
-              Coming Soon
+              Get Access
             </a>
           </div>
 

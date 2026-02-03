@@ -1,4 +1,5 @@
 import { PythagoreanTree } from './components/PythagoreanTree';
+import { WaitlistForm } from './components/WaitlistForm';
 
 export default function Home() {
   return (
@@ -8,34 +9,37 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Text */}
           <div className="space-y-8">
-            <h1 className="text-hero font-extralight tracking-tight">
-              Digital graffiti<br />
-              <span className="text-gray-400">for the real world</span>
-            </h1>
+            <div className="space-y-2">
+              <p className="label text-gray-400">Beta by invite only</p>
+              <h1 className="text-hero font-extralight tracking-tight">
+                Digital graffiti<br />
+                <span className="text-gray-400">for the real world</span>
+              </h1>
+            </div>
             
             <p className="text-large text-gray-500 dark:text-gray-400 max-w-lg">
-              Leave AR messages pinned to real-world coordinates. 
-              Discover what others have left behind. 
-              Your city becomes a canvas.
+              Leave invisible messages at real-world coordinates. 
+              Walk by, discover what's hidden. 
+              Your city holds secrets.
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
               <a 
-                href="#notify"
+                href="#access"
                 className="btn-primary inline-block"
               >
-                Get Notified
+                Request Early Access
               </a>
               <a 
-                href="#features"
+                href="#how"
                 className="btn-secondary inline-block"
               >
-                Learn More
+                How It Works
               </a>
             </div>
             
             <p className="label text-gray-400">
-              Coming to iOS · 2025
+              iOS · Coming 2025
             </p>
           </div>
           
@@ -50,13 +54,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="ma-xl px-8 scroll-mt-24">
+      {/* Mystery Section */}
+      <section className="ma-lg px-8 bg-gray-50 dark:bg-gray-800/50 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <blockquote className="text-title font-extralight leading-tight mb-6">
+            "What if every corner held a secret?"
+          </blockquote>
+          <p className="text-body text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            A love note on the corner where someone had their first kiss. 
+            A protest at the steps of City Hall. 
+            Art floating in your favorite park. 
+            Messages waiting to be found.
+          </p>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how" className="ma-xl px-8 scroll-mt-24">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-24">
-            <p className="label text-gray-400 mb-4">How It Works</p>
+            <p className="label text-gray-400 mb-4">The Concept</p>
             <h2 className="text-title font-extralight">
-              GPS coordinates meet<br />augmented reality
+              GPS meets augmented reality
             </h2>
           </div>
           
@@ -68,8 +87,8 @@ export default function Home() {
               </div>
               <h3 className="text-subheading font-light">Drop</h3>
               <p className="text-body text-gray-500 dark:text-gray-400">
-                Create an AR drop—photo, text, or drawing—and pin it to your 
-                exact location. It stays there until you decide otherwise.
+                Create something—photo, text, drawing—and pin it to your 
+                exact coordinates. It becomes part of that place.
               </p>
             </div>
             
@@ -78,10 +97,10 @@ export default function Home() {
               <div className="w-16 h-16 border-2 border-swiss-black dark:border-white flex items-center justify-center">
                 <span className="text-heading font-extralight">02</span>
               </div>
-              <h3 className="text-subheading font-light">Discover</h3>
+              <h3 className="text-subheading font-light">Walk</h3>
               <p className="text-body text-gray-500 dark:text-gray-400">
-                Walk by a drop and get notified. Open your camera to reveal 
-                the AR content floating in the real world.
+                Move through your city. When you're near a drop, 
+                you'll know. Something's waiting to be discovered.
               </p>
             </div>
             
@@ -90,62 +109,50 @@ export default function Home() {
               <div className="w-16 h-16 border-2 border-swiss-black dark:border-white flex items-center justify-center">
                 <span className="text-heading font-extralight">03</span>
               </div>
-              <h3 className="text-subheading font-light">Connect</h3>
+              <h3 className="text-subheading font-light">Reveal</h3>
               <p className="text-body text-gray-500 dark:text-gray-400">
-                Follow creators, explore neighborhoods, and build a community 
-                of urban digital artists and explorers.
+                Open your camera. The drop appears, floating in the real world 
+                exactly where someone left it. AR magic.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Philosophy Section */}
-      <section className="ma-xl px-8 bg-gray-50 dark:bg-gray-800/50 py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          <blockquote className="text-title font-extralight leading-tight mb-8">
-            "What if every corner held a secret?<br />
-            What if your morning commute became an expedition?"
-          </blockquote>
-          <p className="text-body text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-            Drop City transforms passive space into interactive canvas. 
-            Inspired by the 1960s Colorado commune where artists built geodesic 
-            domes from car tops, we're building a new kind of creative space—one 
-            that exists in the gaps between digital and physical.
-          </p>
+      {/* Early Access Section */}
+      <section id="access" className="ma-xl px-8 scroll-mt-24">
+        <div className="max-w-xl mx-auto text-center space-y-8">
+          <div className="space-y-4">
+            <p className="label text-gray-400">Limited Beta</p>
+            <h2 className="text-title font-extralight">
+              Join the first explorers
+            </h2>
+            <p className="text-body text-gray-500 dark:text-gray-400">
+              We're building something different. Access is limited. 
+              Early members help shape what Drop City becomes.
+            </p>
+          </div>
+          
+          <WaitlistForm />
         </div>
       </section>
 
-      {/* Notify Section */}
-      <section id="notify" className="ma-xl px-8 scroll-mt-24">
-        <div className="max-w-xl mx-auto text-center space-y-8">
-          <p className="label text-gray-400">Stay Updated</p>
-          <h2 className="text-title font-extralight">
-            Be first to explore
-          </h2>
-          <p className="text-body text-gray-500 dark:text-gray-400">
-            Drop City is coming to iOS in 2025. Leave your email 
-            and we'll let you know when it's ready.
-          </p>
-          
-          <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input 
-              type="email" 
-              placeholder="your@email.com"
-              className="flex-1 px-4 py-4 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-body focus:border-swiss-black dark:focus:border-white outline-none transition-colors"
-              required
-            />
-            <button 
-              type="submit"
-              className="btn-primary whitespace-nowrap"
-            >
-              Notify Me
-            </button>
-          </form>
-          
-          <p className="text-tiny text-gray-400">
-            No spam. Just launch updates.
-          </p>
+      {/* Origin Story */}
+      <section className="ma-xl px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-8 py-4">
+            <p className="label text-gray-400 mb-4">Why "Drop City"?</p>
+            <p className="text-body text-gray-500 dark:text-gray-400 mb-4">
+              In 1965, a group of artists built a commune in southern Colorado. 
+              They made geodesic domes from salvaged car tops—junk transformed 
+              into architecture, waste into wonder.
+            </p>
+            <p className="text-body text-gray-500 dark:text-gray-400">
+              We're inspired by that spirit. Taking overlooked spaces and filling 
+              them with creativity. Building new forms of expression from the 
+              materials at hand—GPS coordinates and augmented reality.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -156,10 +163,10 @@ export default function Home() {
             Your city is waiting
           </h2>
           <p className="text-body text-gray-500 dark:text-gray-400 mb-8">
-            Drop City. Leave your mark.
+            What will you leave behind?
           </p>
-          <a href="#notify" className="btn-primary inline-block">
-            Get Early Access
+          <a href="#access" className="btn-primary inline-block">
+            Request Access
           </a>
         </div>
       </section>
