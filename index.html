@@ -463,6 +463,199 @@ nav {
 }
 
 /* ═══════════════════════════════════════════
+   USE CASES — Real-World Impact
+   ═══════════════════════════════════════════ */
+
+.use-cases {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+  overflow: hidden;
+}
+
+.use-cases-header {
+  margin-bottom: calc(var(--grid) * 8);
+}
+
+.use-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--grid) * 4);
+}
+
+.use-case-card {
+  position: relative;
+  padding: calc(var(--grid) * 5) calc(var(--grid) * 4) calc(var(--grid) * 4);
+  border: 1px solid rgba(240, 240, 236, 0.06);
+  background: rgba(10, 31, 92, 0.2);
+  transition: border-color 0.4s, transform 0.4s;
+  overflow: hidden;
+}
+
+.use-case-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.use-case-card:hover {
+  transform: translateY(-6px);
+}
+
+.use-case-card:hover::before {
+  opacity: 1;
+}
+
+/* Card accent gradients */
+.use-case-card--meetup::before {
+  background: linear-gradient(90deg, var(--coral), var(--peach));
+}
+.use-case-card--meetup:hover {
+  border-color: rgba(232, 101, 74, 0.3);
+}
+
+.use-case-card--proof::before {
+  background: linear-gradient(90deg, var(--cyan), var(--sky));
+}
+.use-case-card--proof:hover {
+  border-color: rgba(61, 217, 217, 0.3);
+}
+
+.use-case-card--rights::before {
+  background: linear-gradient(90deg, var(--hot-pink), var(--rose));
+}
+.use-case-card--rights:hover {
+  border-color: rgba(224, 40, 125, 0.3);
+}
+
+/* Geometric background accent per card */
+.use-case-card--meetup {
+  background: linear-gradient(160deg, rgba(232, 101, 74, 0.06) 0%, rgba(10, 31, 92, 0.2) 50%);
+}
+.use-case-card--proof {
+  background: linear-gradient(160deg, rgba(61, 217, 217, 0.06) 0%, rgba(10, 31, 92, 0.2) 50%);
+}
+.use-case-card--rights {
+  background: linear-gradient(160deg, rgba(224, 40, 125, 0.06) 0%, rgba(10, 31, 92, 0.2) 50%);
+}
+
+.use-case-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: calc(var(--grid) * 3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.use-case-icon .geo-shape {
+  transition: transform 0.4s;
+}
+
+.use-case-card:hover .geo-shape {
+  transform: rotate(12deg) scale(1.1);
+}
+
+.use-case-card h3 {
+  margin-bottom: calc(var(--grid) * 2);
+  color: var(--text);
+}
+
+.use-case-lede {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text);
+  max-width: none;
+  margin-bottom: calc(var(--grid) * 3);
+}
+
+.use-case-details {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: none;
+}
+
+.use-case-details li {
+  list-style: none;
+  padding-left: calc(var(--grid) * 3);
+  position: relative;
+  margin-bottom: calc(var(--grid) * 1);
+}
+
+.use-case-details li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 1px;
+}
+
+.use-case-card--meetup .use-case-details li::before {
+  background: var(--coral);
+}
+.use-case-card--proof .use-case-details li::before {
+  background: var(--cyan);
+}
+.use-case-card--rights .use-case-details li::before {
+  background: var(--hot-pink);
+}
+
+/* Impact CTA strip */
+.use-cases-cta {
+  margin-top: calc(var(--grid) * 10);
+  padding: calc(var(--grid) * 6) 0;
+  border-top: 1px solid rgba(240, 240, 236, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--grid) * 4);
+  flex-wrap: wrap;
+}
+
+.use-cases-cta-text {
+  max-width: 520px;
+}
+
+.use-cases-cta-text h2 {
+  font-size: clamp(24px, 4vw, 40px);
+  margin-bottom: calc(var(--grid) * 1);
+}
+
+.use-cases-cta-text p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .use-cases-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .use-cases-cta {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .use-cases-cta-text {
+    text-align: center;
+  }
+
+  .use-cases-cta-text p {
+    margin: 0 auto;
+  }
+}
+
+/* ═══════════════════════════════════════════
    HOW IT WORKS
    ═══════════════════════════════════════════ */
 
@@ -868,6 +1061,7 @@ footer {
   <a href="#" class="nav-logo">Drop City</a>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
+    <li><a href="#use-cases">Use Cases</a></li>
     <li><a href="#how">How It Works</a></li>
     <li><a href="#origins">Origins</a></li>
   </ul>
@@ -991,6 +1185,103 @@ footer {
     </div>
   </div>
 </section>
+
+<!-- ═══════════════════════════════════════════
+     USE CASES — Real-World Impact
+     ═══════════════════════════════════════════ -->
+<section class="use-cases" id="use-cases">
+  <div class="container">
+    <div class="use-cases-header">
+      <span class="label">Real-World Impact</span>
+      <h2 style="margin-top: calc(var(--grid) * 2)">More than<br>digital graffiti</h2>
+    </div>
+
+    <div class="use-cases-grid stagger">
+
+      <!-- 1. Emergency Meetup -->
+      <div class="use-case-card use-case-card--meetup fade-in">
+        <div class="use-case-icon">
+          <svg class="geo-shape" width="48" height="48" viewBox="0 0 48 48">
+            <!-- Beacon / radiate from point -->
+            <circle cx="24" cy="32" r="4" fill="#E8654A"/>
+            <path d="M24 28 L24 8" stroke="#E8654A" stroke-width="2" stroke-linecap="square"/>
+            <path d="M16 16 L24 8 L32 16" fill="none" stroke="#E8654A" stroke-width="2" stroke-linecap="square"/>
+            <circle cx="24" cy="32" r="12" fill="none" stroke="#E8654A" stroke-width="1" opacity="0.3"/>
+            <circle cx="24" cy="32" r="20" fill="none" stroke="#E8654A" stroke-width="1" opacity="0.15"/>
+          </svg>
+        </div>
+        <h3>Emergency Meetup</h3>
+        <p class="use-case-lede">Phone dying at a festival. Leave a drop your friends can find.</p>
+        <ul class="use-case-details">
+          <li>Pin a message to your exact location</li>
+          <li>Friends discover it via proximity alert</li>
+          <li>Ephemeral — expires after the event</li>
+          <li>No signal needed to leave the drop</li>
+        </ul>
+      </div>
+
+      <!-- 2. Proof of Presence -->
+      <div class="use-case-card use-case-card--proof fade-in">
+        <div class="use-case-icon">
+          <svg class="geo-shape" width="48" height="48" viewBox="0 0 48 48">
+            <!-- Lock / cryptographic shield -->
+            <rect x="12" y="22" width="24" height="20" fill="none" stroke="#3DD9D9" stroke-width="2"/>
+            <rect x="16" y="26" width="16" height="12" fill="#3DD9D9" opacity="0.15"/>
+            <path d="M18 22 L18 14 C18 8 30 8 30 14 L30 22" fill="none" stroke="#3DD9D9" stroke-width="2" stroke-linecap="square"/>
+            <rect x="22" y="30" width="4" height="4" fill="#3DD9D9"/>
+          </svg>
+        </div>
+        <h3>Proof of Presence</h3>
+        <p class="use-case-lede">Cryptographic signatures prove you were there. Tamper-proof. Geolocated. Timestamped.</p>
+        <ul class="use-case-details">
+          <li>WHO — identity via digital signature</li>
+          <li>WHERE — GPS coordinates, immutable</li>
+          <li>WHEN — timestamped on-chain</li>
+          <li>REAL — provably not AI-generated</li>
+        </ul>
+      </div>
+
+      <!-- 3. Human Rights Documentation -->
+      <div class="use-case-card use-case-card--rights fade-in">
+        <div class="use-case-icon">
+          <svg class="geo-shape" width="48" height="48" viewBox="0 0 48 48">
+            <!-- Scales of justice — geometric -->
+            <line x1="24" y1="6" x2="24" y2="42" stroke="#E0287D" stroke-width="2"/>
+            <line x1="8" y1="42" x2="40" y2="42" stroke="#E0287D" stroke-width="2"/>
+            <line x1="10" y1="16" x2="38" y2="16" stroke="#E0287D" stroke-width="2"/>
+            <path d="M10 16 L6 28 L18 28 Z" fill="#E0287D" opacity="0.2" stroke="#E0287D" stroke-width="1"/>
+            <path d="M38 16 L30 28 L46 28 Z" fill="#E0287D" opacity="0.2" stroke="#E0287D" stroke-width="1"/>
+            <rect x="20" y="4" width="8" height="4" fill="#E0287D"/>
+          </svg>
+        </div>
+        <h3>Human Rights Documentation</h3>
+        <p class="use-case-lede">Evidence that can't be faked or denied. For journalists, activists, witnesses.</p>
+        <ul class="use-case-details">
+          <li>Geolocated video with tamper-proof signatures</li>
+          <li>Digital chain of custody for courts</li>
+          <li>Anonymous proofs — protect the witness</li>
+          <li>Can't be dismissed as doctored</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Impact CTA -->
+    <div class="use-cases-cta">
+      <div class="use-cases-cta-text">
+        <h2>Be part of something <span style="color: var(--cyan)">bigger</span></h2>
+        <p>Drop City is fun AR graffiti and critical infrastructure. Both matter. Help us build it.</p>
+      </div>
+      <a href="#beta" class="btn btn-hot">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Join the Beta
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div class="geo-divider"></div>
 
 <!-- ═══════════════════════════════════════════
      HOW IT WORKS
