@@ -1321,7 +1321,7 @@ footer {
     <h2 style="margin-top: calc(var(--grid) * 2)">Join the<br><span style="color: var(--cyan)">first drop</span></h2>
     <p>We're building Drop City with a small group of early explorers. Sign up for TestFlight access and be among the first to leave your mark.</p>
     <form class="email-form" id="betaForm" onsubmit="handleBeta(event)">
-      <input type="email" placeholder="your@email.com" required aria-label="Email address">
+      <input type="email" name="email" placeholder="your@email.com" required aria-label="Email address" autocomplete="email">
       <button type="submit">Request Access</button>
     </form>
     <p class="beta-note">iOS 17+ required · No spam, ever · Spots are limited</p>
@@ -1436,26 +1436,66 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
 // ─── Beta form handler ───────────────────────────────────
-function handleBeta(e) {
+async function handleBeta(e) {
   e.preventDefault();
-  const input = e.target.querySelector('input');
-  const btn = e.target.querySelector('button');
-  const email = input.value;
+  const form = e.target;
+  const input = form.querySelector('input[name="email"]');
+  const btn = form.querySelector('button[type="submit"]');
+
+  const email = (input?.value || '').trim();
+  if (!email) return;
+
+  const original = {
+    btnText: btn.textContent,
+    btnDisabled: btn.disabled,
+    btnBg: btn.style.background,
+    btnBorder: btn.style.borderColor,
+    btnColor: btn.style.color,
+    inputDisabled: input.disabled,
+    inputPlaceholder: input.placeholder,
+  };
 
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
-  // Simulate API call
-  setTimeout(() => {
+  try {
+    const resp = await fetch('/api/beta-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, source: 'dropcity.io' }),
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      const msg = data?.error || `Request failed (${resp.status})`;
+      throw new Error(msg);
+    }
+
     btn.textContent = '✓ You\'re In';
     btn.style.background = '#3DD9D9';
     btn.style.borderColor = '#3DD9D9';
     btn.style.color = '#060F30';
+
     input.value = '';
     input.placeholder = 'Check your inbox';
     input.disabled = true;
-  }, 800);
+  } catch (err) {
+    console.warn('beta-signup failed', err);
+    btn.textContent = 'Try Again';
+    btn.disabled = false;
+
+    // lightweight error feedback without adding new UI elements
+    input.value = email;
+    input.disabled = false;
+    input.placeholder = original.inputPlaceholder;
+
+    // show error via title tooltip + focus
+    input.title = err?.message || 'Signup failed';
+    input.focus();
+  }
 }
+
 
 // ─── Smooth scroll for nav links ─────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
