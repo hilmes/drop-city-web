@@ -1,8 +1,40 @@
 # Drop City Website Setup
 
-## Upstash Redis Configuration
+## Beta signup (Supabase + Resend)
 
-The waitlist feature requires Upstash Redis for storing email signups.
+The beta signup form posts to `POST /api/beta-signup`.
+
+### Required environment variables (Vercel / `.env.local`)
+
+```
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+RESEND_API_KEY=...
+EMAIL_FROM="Drop City <beta@dropcity.io>"   # optional; defaults to onboarding@resend.dev
+NOTIFY_EMAIL=team@dropcity.io               # optional
+```
+
+### Supabase table
+
+Create a table named `beta_signups` with a **unique** constraint on `email`.
+Minimum schema:
+
+- `email` (text, unique)
+- `created_at` (timestamptz, default now())
+- `updated_at` (timestamptz, default now())
+
+> The API uses a service-role key and performs an idempotent upsert on `email`.
+
+### Email behavior
+
+- Always records the signup in Supabase.
+- Sends a confirmation email to the user via Resend.
+- Optionally sends a notification email to `NOTIFY_EMAIL`.
+- If email sending fails, the API still returns **200** and includes email status in the response.
+
+## Upstash Redis Configuration (legacy)
+
+The previous waitlist endpoint (`/api/waitlist`) uses Upstash Redis for storing email signups.
 
 ### Quick Setup via Vercel Dashboard
 

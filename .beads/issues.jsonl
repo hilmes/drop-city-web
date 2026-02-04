@@ -1,0 +1,1 @@
+{"id":"drop-city-web-lgp","title":"Implement real beta signup: Supabase upsert + Resend emails; wire form to new endpoint; document env vars","status":"open","priority":2,"issue_type":"task","assignee":"cy","owner":"cy","created_at":"2026-02-03T23:31:45.685064-05:00","created_by":"cy","updated_at":"2026-02-03T23:31:51.072866-05:00"}

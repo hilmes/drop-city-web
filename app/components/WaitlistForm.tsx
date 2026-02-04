@@ -2,12 +2,12 @@
 
 import { useState, FormEvent } from 'react';
 
-type FormState = 'idle' | 'loading' | 'success' | 'error' | 'exists';
+type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 export function WaitlistForm() {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<FormState>('idle');
-  const [position, setPosition] = useState<number | null>(null);
+  // No waitlist position for beta signups.
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -17,50 +17,42 @@ export function WaitlistForm() {
     setState('loading');
 
     try {
-      const res = await fetch('/api/waitlist', {
+      const res = await fetch('/api/beta-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
+      // Best-effort parse; endpoint returns JSON.
+      try {
+        await res.json();
+      } catch {
+        // ignore
+      }
 
       if (!res.ok) {
         setState('error');
         return;
       }
 
-      if (data.alreadyExists) {
-        setState('exists');
-      } else {
-        setState('success');
-        setPosition(data.position);
-      }
+      // Beta signup is idempotent; treat 2xx as success.
+      setState('success');
     } catch {
       setState('error');
     }
   }
 
-  if (state === 'success' || state === 'exists') {
+  if (state === 'success') {
     return (
       <div className="max-w-md mx-auto text-center space-y-4">
         <div className="w-16 h-16 mx-auto border-2 border-swiss-black dark:border-white flex items-center justify-center">
           <span className="text-heading">✓</span>
         </div>
-        <h3 className="text-subheading font-light">
-          {state === 'exists' ? 'You\'re already in' : 'You\'re in'}
-        </h3>
+        <h3 className="text-subheading font-light">You're in</h3>
         <p className="text-body text-gray-500 dark:text-gray-400">
-          {state === 'exists' 
-            ? 'We already have your email. Sit tight — invites coming soon.'
-            : position && position <= 100
-              ? `You're #${position} on the list. Early birds get first access.`
-              : 'We\'ll send your invite when we\'re ready for you.'
-          }
+          We'll send your invite when we're ready for you.
         </p>
-        <p className="text-small text-gray-400 dark:text-gray-500">
-          Keep an eye on your inbox.
-        </p>
+        <p className="text-small text-gray-400 dark:text-gray-500">Keep an eye on your inbox.</p>
       </div>
     );
   }
