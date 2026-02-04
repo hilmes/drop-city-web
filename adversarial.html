@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adversarial Security — Drop City</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy:        #0A1F5C;
+  --navy-deep:   #060F30;
+  --coral:       #E8654A;
+  --pink-soft:   #E8A8C0;
+  --hot-pink:    #E0287D;
+  --cyan:        #3DD9D9;
+  --aqua:        #5CE0E0;
+  --sky:         #4AADCE;
+  --rose:        #F27088;
+  --bg:          #060F30;
+  --text:        #F0F0EC;
+  --text-muted:  rgba(240, 240, 236, 0.5);
+  --surface:     rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --border:      rgba(255,255,255,0.08);
+  --green:       #34D399;
+  --yellow:      #FBBF24;
+  --orange:      #F97316;
+  --amber:       #F59E0B;
+  --red:         #EF4444;
+  --accent:      #F59E0B;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--amber); color: var(--bg); }
+
+/* Layout */
+.admin-shell { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.admin-header h1 {
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, var(--amber), var(--coral));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.admin-header .user-info {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--text-muted);
+}
+.admin-header .user-info img {
+  width: 32px; height: 32px; border-radius: 50%;
+}
+.btn-signout {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.btn-signout:hover { background: var(--surface-hover); color: var(--text); }
+
+/* Navigation tabs */
+.nav-tabs {
+  display: flex; gap: 0; margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-top: 16px;
+}
+.nav-tab {
+  padding: 10px 20px; font-size: 14px; font-weight: 600;
+  color: var(--text-muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+/* Auth screen */
+#auth-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80vh; text-align: center;
+}
+#auth-screen h2 { font-size: 28px; margin-bottom: 8px; }
+#auth-screen p { color: var(--text-muted); margin-bottom: 32px; font-size: 15px; }
+#auth-error {
+  color: var(--coral); font-size: 14px; margin-top: 16px;
+  display: none;
+}
+
+/* Mission Statement */
+.mission-statement {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(239, 68, 68, 0.04));
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-left: 3px solid var(--amber);
+  border-radius: 14px;
+  padding: 32px;
+  margin-bottom: 36px;
+}
+.mission-statement h2 {
+  font-size: 22px; font-weight: 700; margin-bottom: 12px;
+  color: var(--amber);
+}
+.mission-statement p {
+  font-size: 15px; color: rgba(240, 240, 236, 0.85); line-height: 1.8;
+  margin-bottom: 12px;
+}
+.mission-statement p:last-child { margin-bottom: 0; }
+.mission-statement strong { color: var(--text); }
+.mission-statement em { color: var(--amber); font-style: normal; font-weight: 600; }
+
+/* Priority Matrix */
+.priority-matrix {
+  margin-bottom: 36px;
+}
+.priority-matrix h2 {
+  font-size: 20px; font-weight: 700; margin-bottom: 16px;
+  color: var(--amber);
+}
+.priority-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.priority-tier {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.priority-tier.critical {
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.04);
+}
+.priority-tier.high {
+  border-color: rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.04);
+}
+.priority-tier.standard {
+  border-color: rgba(61, 217, 217, 0.15);
+  background: rgba(61, 217, 217, 0.03);
+}
+.priority-tier .tier-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 10px;
+}
+.priority-tier.critical .tier-label { color: var(--red); }
+.priority-tier.high .tier-label { color: var(--amber); }
+.priority-tier.standard .tier-label { color: var(--cyan); }
+.priority-tier ul {
+  list-style: none; padding: 0;
+}
+.priority-tier ul li {
+  position: relative; padding-left: 16px; margin-bottom: 6px;
+  font-size: 13px; color: rgba(240,240,236,0.8); line-height: 1.5;
+}
+.priority-tier.critical ul li::before { content: '🔴'; position: absolute; left: 0; font-size: 8px; top: 4px; }
+.priority-tier.high ul li::before { content: '🟠'; position: absolute; left: 0; font-size: 8px; top: 4px; }
+.priority-tier.standard ul li::before { content: '🔵'; position: absolute; left: 0; font-size: 8px; top: 4px; }
+
+/* Section Cards */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+.section-card:hover { border-color: rgba(255,255,255,0.12); }
+
+.section-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px; gap: 16px;
+}
+.section-title-block { flex: 1; }
+.section-title-block h3 {
+  font-size: 18px; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title-block h3 .section-icon {
+  font-size: 22px; flex-shrink: 0;
+}
+.section-title-block .section-desc {
+  font-size: 14px; color: var(--text-muted); line-height: 1.5;
+}
+
+.section-badges {
+  display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge-concept {
+  background: rgba(255,255,255,0.05); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.badge-planned {
+  background: rgba(61, 217, 217, 0.1); color: var(--cyan);
+  border: 1px solid rgba(61, 217, 217, 0.2);
+}
+.badge-in-progress {
+  background: rgba(245, 158, 11, 0.1); color: var(--amber);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.badge-shipped {
+  background: rgba(52, 211, 153, 0.1); color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+.badge-difficulty {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+}
+.badge-difficulty.easy { color: var(--green); border-color: rgba(52,211,153,0.15); }
+.badge-difficulty.medium { color: var(--yellow); border-color: rgba(251,191,36,0.15); }
+.badge-difficulty.hard { color: var(--orange); border-color: rgba(249,115,22,0.15); }
+.badge-difficulty.extreme { color: var(--red); border-color: rgba(239,68,68,0.15); }
+
+.badge-critical {
+  background: rgba(239, 68, 68, 0.1); color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.section-body { margin-top: 0; }
+
+.concept-group {
+  margin-bottom: 16px;
+}
+.concept-group h4 {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--amber); margin-bottom: 10px;
+}
+.concept-group p {
+  font-size: 14px; color: rgba(240, 240, 236, 0.8); line-height: 1.7;
+  margin-bottom: 8px;
+}
+.concept-list {
+  list-style: none; padding: 0;
+}
+.concept-list li {
+  position: relative; padding-left: 20px; margin-bottom: 8px;
+  font-size: 14px; color: rgba(240, 240, 236, 0.8); line-height: 1.6;
+}
+.concept-list li::before {
+  content: '→'; position: absolute; left: 0; color: var(--amber);
+  font-size: 13px; font-weight: 600;
+}
+.concept-list li strong { color: var(--text); }
+.concept-list li code {
+  background: rgba(255,255,255,0.06); padding: 1px 6px;
+  border-radius: 4px; font-size: 12px; color: var(--cyan);
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+}
+
+/* Stakes callout */
+.stakes-callout {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-left: 3px solid var(--red);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+.stakes-callout p {
+  font-size: 13px; color: rgba(240, 240, 236, 0.85); line-height: 1.6;
+  margin: 0;
+}
+.stakes-callout strong { color: var(--red); }
+
+/* Precedents */
+.precedents-section {
+  margin-top: 40px;
+  background: rgba(61, 217, 217, 0.03);
+  border: 1px solid rgba(61, 217, 217, 0.1);
+  border-radius: 14px;
+  padding: 28px;
+}
+.precedents-section h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 20px;
+  color: var(--cyan);
+}
+.precedent-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.precedent-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.precedent-item h4 {
+  font-size: 14px; font-weight: 700; margin-bottom: 4px;
+  color: var(--text);
+}
+.precedent-item .precedent-year {
+  font-size: 11px; color: var(--cyan); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.precedent-item p {
+  font-size: 13px; color: var(--text-muted); line-height: 1.5;
+}
+
+/* Table */
+.table-section { margin-top: 40px; }
+.table-section h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 16px;
+}
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; padding: 12px 14px; font-weight: 600; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02); white-space: nowrap;
+}
+tbody td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-hover); }
+td.feature-name { font-weight: 600; white-space: nowrap; }
+
+/* Loading */
+.loading {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted); font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .admin-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .priority-grid { grid-template-columns: 1fr; }
+  .section-header { flex-direction: column; }
+  .section-badges { justify-content: flex-start; }
+  .section-card { padding: 20px; }
+  .nav-tabs { overflow-x: auto; }
+  .precedent-grid { grid-template-columns: 1fr; }
+  .mission-statement { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <h2>Drop City Admin</h2>
+  <p>Sign in with your authorized Google account to continue.</p>
+  <div id="g_id_onload"
+       data-client_id="__GOOGLE_CLIENT_ID__"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="filled_black"
+       data-text="sign_in_with"
+       data-shape="pill"
+       data-logo_alignment="left">
+  </div>
+  <div id="auth-error"></div>
+</div>
+
+<!-- Admin Dashboard (hidden until authed) -->
+<div id="admin-dashboard" style="display:none;">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>🛡️ Adversarial Security</h1>
+      <div class="user-info">
+        <span id="user-email"></span>
+        <img id="user-avatar" src="" alt="" />
+        <button class="btn-signout" onclick="signOut()">Sign Out</button>
+      </div>
+    </header>
+
+    <nav class="nav-tabs">
+      <a href="/admin" class="nav-tab">Dashboard</a>
+      <a href="/release" class="nav-tab">Release Strategy</a>
+      <a href="/adversarial" class="nav-tab active">Adversarial</a>
+    </nav>
+
+    <div id="adversarial-content">
+
+      <!-- Mission Statement -->
+      <div class="mission-statement">
+        <h2>Public Expression Is a Human Right</h2>
+        <p>Drop City is a tool for putting art into the world. In many places, that act — expressing yourself publicly, documenting what you see, bearing witness — is criminalized. <em>People are imprisoned, tortured, and killed for it.</em></p>
+        <p>The "proof drops" concept — location-anchored content that can't be whitewashed or erased — makes Drop City uniquely powerful for human rights documentation, protest art, and acts of witness. <strong>But it only works if the app doesn't get people killed.</strong></p>
+        <p>This page articulates the security architecture and concepts needed to protect users in adversarial conditions: authoritarian governments (Iran, China, Myanmar, Belarus, Russia, Egypt, and beyond), protest situations, and anywhere public expression is dangerous. <em>This is not theoretical. This is life and death.</em></p>
+      </div>
+
+      <!-- Priority Matrix -->
+      <div class="priority-matrix">
+        <h2>⚡ Priority Matrix — What to Build First</h2>
+        <div class="priority-grid">
+          <div class="priority-tier critical">
+            <div class="tier-label">🔴 Critical — Build Before Launch in Any Authoritarian Market</div>
+            <ul>
+              <li><strong>Zero-knowledge architecture</strong> — server can't betray users</li>
+              <li><strong>EXIF / metadata stripping</strong> — don't leak creator location</li>
+              <li><strong>No account required</strong> — no identity to seize</li>
+              <li><strong>No IP logging</strong> — no trail to follow</li>
+              <li><strong>Client-side encryption</strong> — server never sees plaintext</li>
+              <li><strong>Quick-erase panic gesture</strong> — wipe all local data instantly</li>
+            </ul>
+          </div>
+          <div class="priority-tier high">
+            <div class="tier-label">🟠 High — Build for V2 / Activist Outreach</div>
+            <ul>
+              <li><strong>Stealth/disguise mode</strong> — app looks like a calculator</li>
+              <li><strong>Domain fronting</strong> — traffic camouflage</li>
+              <li><strong>Offline-first content creation</strong> — works without internet</li>
+              <li><strong>Time-delayed publishing</strong> — create now, publish later</li>
+              <li><strong>Geofenced security levels</strong> — auto-harden in risky countries</li>
+              <li><strong>In-app security briefing</strong> — educate high-risk users</li>
+            </ul>
+          </div>
+          <div class="priority-tier standard">
+            <div class="tier-label">🔵 Important — Roadmap / Partnership Dependent</div>
+            <ul>
+              <li><strong>Tor / onion routing</strong> integration</li>
+              <li><strong>Mesh networking</strong> (Bluetooth/WiFi Direct)</li>
+              <li><strong>Pluggable transports</strong> (meek, obfs4)</li>
+              <li><strong>Steganographic content embedding</strong></li>
+              <li><strong>Warrant canary system</strong></li>
+              <li><strong>Decoy mode</strong> — fake content for inspection</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: Threat Model -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">🎯</span> 1. Threat Model</h3>
+            <p class="section-desc">Understanding who the adversaries are, what they're looking for, and what's at stake.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-critical">Critical</span>
+            <span class="badge badge-concept">Concept</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Adversaries</h4>
+            <ul class="concept-list">
+              <li><strong>State intelligence services</strong> — IRGC (Iran), MSS (China), FSB (Russia), DGSE, military intelligence in Myanmar, Egypt's NSA</li>
+              <li><strong>Internet service providers</strong> — performing deep packet inspection (DPI) on behalf of the state</li>
+              <li><strong>Local police / security forces</strong> — with physical access to devices at checkpoints, arrests, border crossings</li>
+              <li><strong>Informants & social engineering</strong> — people who infiltrate groups to identify organizers and creators</li>
+              <li><strong>Platform-level surveillance</strong> — app store metadata, device management profiles, corporate compliance with state requests</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>What They're Looking For</h4>
+            <ul class="concept-list">
+              <li><strong>App presence on device</strong> — is Drop City installed? Is there evidence it was ever installed?</li>
+              <li><strong>Content creation evidence</strong> — who created this specific drop? When? Where?</li>
+              <li><strong>Identity of creators</strong> — real name, phone number, email, device ID, IP address</li>
+              <li><strong>Location history</strong> — where has this person been? Can we place them at a protest?</li>
+              <li><strong>Association / social graph</strong> — who are they connected to? Who are their co-conspirators?</li>
+            </ul>
+          </div>
+          <div class="stakes-callout">
+            <p><strong>What's at stake:</strong> Imprisonment. Torture. Forced disappearance. Death. In Iran, Myanmar, China, Egypt, Belarus, and Russia, this is not hypothetical — it is the documented, ongoing reality for people who express dissent or document state violence. Every architectural decision we make must be evaluated against this reality.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Plausible Deniability -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">🪞</span> 2. Plausible Deniability</h3>
+            <p class="section-desc">If they find the phone, the app shouldn't be identifiable. If they find the app, the content shouldn't be incriminating.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-concept">Concept</span>
+            <span class="badge badge-difficulty hard">Hard</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Concepts</h4>
+            <ul class="concept-list">
+              <li><strong>Stealth / disguise mode</strong> — App presents as something innocuous: a calculator, weather app, or utility. No "Drop City" branding visible anywhere — icon, name, splash screen, or settings</li>
+              <li><strong>No app icon option</strong> — Launch via URL scheme (<code>dropcity://</code>), Siri Shortcut, or hidden gesture (e.g., triple-tap a widget). No home screen presence at all</li>
+              <li><strong>Quick-erase panic gesture</strong> — A specific gesture (e.g., shake + volume down, or 5-tap on lock screen) instantly wipes all local data, cached content, and login state. Leaves no trace</li>
+              <li><strong>Decoy mode</strong> — If phone is being inspected under duress, app shows fake innocent content (a working calculator, stock photos, weather data). Real content requires a secondary passphrase</li>
+              <li><strong>Plausible app store presence</strong> — Consider dual-listing: a "legitimate" utility app that contains Drop City functionality behind a hidden activation. iOS App Clips or web-based PWA as alternative distribution</li>
+            </ul>
+          </div>
+          <div class="stakes-callout">
+            <p><strong>Real-world scenario:</strong> A journalist in Myanmar is stopped at a military checkpoint. Soldiers inspect their phone. The app must not be findable. If it's found, its purpose must not be identifiable. If identified, it must not contain incriminating content. Defense in depth — every layer matters.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Zero-Knowledge Architecture -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">🔐</span> 3. Zero-Knowledge Architecture</h3>
+            <p class="section-desc">The server should never be in a position to betray its users — even under compulsion.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-critical">Critical</span>
+            <span class="badge badge-concept">Concept</span>
+            <span class="badge badge-difficulty hard">Hard</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Core Principles</h4>
+            <ul class="concept-list">
+              <li><strong>No user accounts required</strong> — The app must be fully functional without any identity: no email, no phone number, no social login. Identity is optional and ephemeral</li>
+              <li><strong>No IP logging</strong> — The server never records the IP address of any request. Even under legal compulsion, there are no access logs to hand over</li>
+              <li><strong>Client-side encryption</strong> — All content is encrypted on the device before upload. The server stores ciphertext it cannot decrypt. Keys are derived client-side and never transmitted</li>
+              <li><strong>Metadata stripping</strong> — EXIF data, device identifiers, and precise GPS coordinates are stripped or fuzzed before content leaves the device. The creator's exact location is never stored server-side</li>
+              <li><strong>Onion routing / Tor integration</strong> — Network traffic routed through Tor or a similar anonymity network so the server doesn't know the originating IP even at the network layer</li>
+              <li><strong>Anonymous drop submission</strong> — Drops are submitted via anonymous channels. The server can verify content integrity (hash) without knowing authorship. Like a dead drop</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>Key Design Constraint</h4>
+            <p>If a government serves us with a warrant or seizes our servers, the response should be: <strong>"We don't have what you're looking for. We literally cannot produce it."</strong> This is not a legal strategy — it's an architectural guarantee.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Network Security -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">🌐</span> 4. Network Security</h3>
+            <p class="section-desc">Making Drop City traffic invisible, unstoppable, and indistinguishable from normal browsing.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-concept">Concept</span>
+            <span class="badge badge-difficulty extreme">Extreme</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Traffic Camouflage</h4>
+            <ul class="concept-list">
+              <li><strong>Domain fronting / CDN camouflage</strong> — Traffic appears as normal HTTPS requests to Google, Amazon, or Cloudflare CDNs. An ISP performing DPI sees <code>google.com</code> in the TLS SNI, not <code>api.dropcity.io</code></li>
+              <li><strong>Meek-style pluggable transports</strong> — If direct connections are blocked, traffic is tunneled through allowed services (cloud platforms, CDNs) using pluggable transport protocols like obfs4, meek, or Snowflake</li>
+              <li><strong>Traffic analysis resistance</strong> — Constant-rate padding: the app sends and receives data at a steady rate regardless of user activity, preventing burst-pattern analysis that reveals when content is being created</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>Offline & Mesh Capabilities</h4>
+            <ul class="concept-list">
+              <li><strong>Offline-first architecture</strong> — Content can be created, stored, and queued locally with zero network connectivity. Syncs opportunistically when a safe connection becomes available</li>
+              <li><strong>Mesh networking</strong> — Nearby devices can relay drops via Bluetooth LE or WiFi Direct without internet access. A protest with 100 phones becomes its own network</li>
+              <li><strong>Delay-tolerant networking</strong> — Content can hop across multiple devices over hours or days until it reaches an internet-connected device that uploads it. Like passing notes in a chain</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Content Protection -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">📦</span> 5. Content Protection</h3>
+            <p class="section-desc">Protecting what's been created — controlling when, how, and to whom content is revealed.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-concept">Concept</span>
+            <span class="badge badge-difficulty medium">Medium</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Temporal Controls</h4>
+            <ul class="concept-list">
+              <li><strong>Time-delayed publishing</strong> — Create a drop now, schedule it to appear 24 hours later. By then, the creator is in a different location with a different network footprint. Breaks temporal correlation</li>
+              <li><strong>Ephemeral drops</strong> — Auto-delete after N views or a time period. Evidence of state violence can be documented and shared without persisting indefinitely on a server</li>
+              <li><strong>Dead man's switch</strong> — Content publishes automatically if the creator doesn't check in within a specified window. If a journalist is detained, their documentation goes public</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>Access Controls</h4>
+            <ul class="concept-list">
+              <li><strong>Encrypted drops</strong> — Content viewable only with a key shared out-of-band (via Signal, in person, via QR code). The key is not stored server-side</li>
+              <li><strong>Steganographic embedding</strong> — For extreme scenarios: protest documentation embedded invisibly in innocent-looking images (vacation photos, food pics). Only someone with the extraction key can reveal the hidden content</li>
+              <li><strong>Warrant canary</strong> — A regularly-updated public signal that confirms we haven't received government demands. If the canary dies, users know to take additional precautions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 6: Identity Protection -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">👤</span> 6. Identity Protection</h3>
+            <p class="section-desc">No persistent identity. No social graph. No breadcrumbs back to a real person.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-critical">Critical</span>
+            <span class="badge badge-concept">Concept</span>
+            <span class="badge badge-difficulty medium">Medium</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Core Design</h4>
+            <ul class="concept-list">
+              <li><strong>No persistent identity required</strong> — The app works fully without any login. A fresh install is indistinguishable from a wiped install. There is no "your account"</li>
+              <li><strong>Disposable personas</strong> — If a user wants a handle, it's ephemeral: create one, use it, burn it. No history persists. New persona, new cryptographic keys</li>
+              <li><strong>No social graph</strong> — The server stores no relationships: no followers, no friends lists, no "users who interacted with this content." There is nothing to subpoena</li>
+              <li><strong>Group coordination via shared secrets</strong> — Crews coordinate using shared passphrases or keys, not accounts. A group exists only as long as its members hold the shared secret. No central membership roster</li>
+              <li><strong>Device attestation without identification</strong> — The system can verify "this is a real device, not a bot" without knowing WHICH device. Rate limiting and abuse prevention without identity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 7: Operational Security Guidance -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">📋</span> 7. Operational Security Guidance</h3>
+            <p class="section-desc">The app should actively help users stay safe — not just avoid making things worse.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-planned">Planned</span>
+            <span class="badge badge-difficulty medium">Medium</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>User-Facing Security</h4>
+            <ul class="concept-list">
+              <li><strong>In-app security briefing</strong> — When the app detects a high-risk region (via locale, timezone, or network characteristics), present a clear, translated security briefing: what the app does and doesn't protect, how to use stealth mode, when NOT to use the app at all</li>
+              <li><strong>Geofenced security levels</strong> — Automatically increase protections in certain countries: disable analytics, enable traffic padding, switch to domain fronting, suggest stealth mode. No user action required</li>
+              <li><strong>"Journalist mode" / "Activist mode" presets</strong> — One-tap security profiles: Journalist mode enables maximum metadata stripping, time-delayed posting, and encrypted drops by default. Activist mode adds stealth features and mesh networking</li>
+              <li><strong>Guidance on when NOT to use the app</strong> — Honest, context-aware guidance: "If any network activity on your device could be dangerous right now, do not open this app. Use airplane mode. Create content offline and sync later from a different location"</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>Design Principle</h4>
+            <p>Security features should be <strong>invisible by default, obvious when needed, and impossible to get wrong.</strong> A user in Tehran shouldn't have to understand cryptography to be protected. The app should protect them by default, and the security briefing should be in Farsi.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 8: Legal & Ethical Framework -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title-block">
+            <h3><span class="section-icon">⚖️</span> 8. Legal & Ethical Framework</h3>
+            <p class="section-desc">The legal and organizational architecture to protect users at the jurisdictional level.</p>
+          </div>
+          <div class="section-badges">
+            <span class="badge badge-planned">Planned</span>
+            <span class="badge badge-difficulty medium">Medium</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="concept-group">
+            <h4>Jurisdictional Architecture</h4>
+            <ul class="concept-list">
+              <li><strong>Servers in press-freedom jurisdictions</strong> — Infrastructure in countries with strong press protections (Iceland, Switzerland, Netherlands). No servers in Five Eyes countries if avoidable. Distributed architecture so no single jurisdiction can compel full access</li>
+              <li><strong>No compliance with authoritarian data requests</strong> — As a matter of policy and architecture: we do not respond to data requests from authoritarian governments. The zero-knowledge architecture means we couldn't comply even if we wanted to</li>
+              <li><strong>Transparency reports</strong> — Regular public reports on government requests received, requests complied with (ideally zero), and canary statements. Modeled on Signal's approach</li>
+            </ul>
+          </div>
+          <div class="concept-group">
+            <h4>Partnerships & Advocacy</h4>
+            <ul class="concept-list">
+              <li><strong>Press freedom organizations</strong> — Formal relationships with CPJ (Committee to Protect Journalists), RSF (Reporters Without Borders), EFF, Access Now, and Witness.org for guidance, audit, and distribution</li>
+              <li><strong>Security audits</strong> — Regular third-party security audits by firms like Cure53, Trail of Bits, or NCC Group. Results published publicly</li>
+              <li><strong>VARA precedent</strong> — The 5 Pointz ruling (VARA) established that graffiti/street art has legal protections as visual art. This precedent extends to AR art — drops may have legal protections against destruction or censorship</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precedents & References -->
+      <div class="precedents-section">
+        <h2>📚 Precedents & References</h2>
+        <div class="precedent-grid">
+          <div class="precedent-item">
+            <div class="precedent-year">Security Model</div>
+            <h4>Signal Protocol</h4>
+            <p>Gold standard for encrypted communication. End-to-end encryption, sealed sender, zero-knowledge server architecture. The bar we should aim for.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Censorship Circumvention</div>
+            <h4>Tor Project</h4>
+            <p>Decades of research on anonymity networks, pluggable transports, and censorship circumvention. Meek, obfs4, and Snowflake are proven approaches.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Hong Kong 2019</div>
+            <h4>Bridgefy</h4>
+            <p>Mesh messaging used by Hong Kong protesters when the government threatened internet shutdowns. Proved mesh networking works at protest scale.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Iran Protests</div>
+            <h4>Firechat</h4>
+            <p>Peer-to-peer messaging used during Iranian internet blackouts. Demonstrated demand for communication tools that work without infrastructure.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Mesh Messaging</div>
+            <h4>Briar Messenger</h4>
+            <p>Tor-based messenger with Bluetooth/WiFi mesh capability. Purpose-built for journalists and activists. No central server required.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">China 2022</div>
+            <h4>AirDrop Protests</h4>
+            <p>Protesters in China used Apple AirDrop to distribute protest materials to strangers on subways and public spaces. Proximity-based, no internet required.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Research</div>
+            <h4>Citizen Lab</h4>
+            <p>University of Toronto research group documenting state surveillance tools (Pegasus, FinFisher, Great Firewall). Essential intelligence on what we're defending against.</p>
+          </div>
+          <div class="precedent-item">
+            <div class="precedent-year">Legal Precedent</div>
+            <h4>5 Pointz / VARA</h4>
+            <p>$6.75M judgment establishing graffiti as protected visual art under VARA. Sets precedent that AR art — including drops — may have legal protection against destruction.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implementation Overview Table -->
+      <div class="table-section">
+        <h2>Implementation Overview</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Status</th>
+                <th>Difficulty</th>
+                <th>Priority</th>
+                <th>Dependencies</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="feature-name">No-account usage</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty easy" style="display:inline-flex;">Easy</span></td>
+                <td style="color:var(--red);font-weight:600;">P0</td>
+                <td style="color:var(--text-muted)">Architecture decision</td>
+              </tr>
+              <tr>
+                <td class="feature-name">EXIF / metadata stripping</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty easy" style="display:inline-flex;">Easy</span></td>
+                <td style="color:var(--red);font-weight:600;">P0</td>
+                <td style="color:var(--text-muted)">Image processing pipeline</td>
+              </tr>
+              <tr>
+                <td class="feature-name">No IP logging</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty easy" style="display:inline-flex;">Easy</span></td>
+                <td style="color:var(--red);font-weight:600;">P0</td>
+                <td style="color:var(--text-muted)">Server configuration</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Client-side encryption</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty medium" style="display:inline-flex;">Medium</span></td>
+                <td style="color:var(--red);font-weight:600;">P0</td>
+                <td style="color:var(--text-muted)">CryptoKit, key management</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Quick-erase panic gesture</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty medium" style="display:inline-flex;">Medium</span></td>
+                <td style="color:var(--red);font-weight:600;">P0</td>
+                <td style="color:var(--text-muted)">iOS gesture system</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Stealth / disguise mode</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty hard" style="display:inline-flex;">Hard</span></td>
+                <td style="color:var(--amber);font-weight:600;">P1</td>
+                <td style="color:var(--text-muted)">Alt icon, UI theming</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Domain fronting</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty hard" style="display:inline-flex;">Hard</span></td>
+                <td style="color:var(--amber);font-weight:600;">P1</td>
+                <td style="color:var(--text-muted)">CDN partnership</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Offline-first content</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty medium" style="display:inline-flex;">Medium</span></td>
+                <td style="color:var(--amber);font-weight:600;">P1</td>
+                <td style="color:var(--text-muted)">Local storage, sync queue</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Time-delayed publishing</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty easy" style="display:inline-flex;">Easy</span></td>
+                <td style="color:var(--amber);font-weight:600;">P1</td>
+                <td style="color:var(--text-muted)">Server-side scheduling</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Geofenced security</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty medium" style="display:inline-flex;">Medium</span></td>
+                <td style="color:var(--amber);font-weight:600;">P1</td>
+                <td style="color:var(--text-muted)">Country detection, policy engine</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Decoy mode</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty extreme" style="display:inline-flex;">Extreme</span></td>
+                <td style="color:var(--cyan);font-weight:600;">P2</td>
+                <td style="color:var(--text-muted)">Dual UI, hidden volumes</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Tor integration</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty extreme" style="display:inline-flex;">Extreme</span></td>
+                <td style="color:var(--cyan);font-weight:600;">P2</td>
+                <td style="color:var(--text-muted)">Tor libraries for iOS</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Mesh networking</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty extreme" style="display:inline-flex;">Extreme</span></td>
+                <td style="color:var(--cyan);font-weight:600;">P2</td>
+                <td style="color:var(--text-muted)">MultipeerConnectivity, BLE</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Steganography</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty extreme" style="display:inline-flex;">Extreme</span></td>
+                <td style="color:var(--cyan);font-weight:600;">P2</td>
+                <td style="color:var(--text-muted)">Image processing, codec research</td>
+              </tr>
+              <tr>
+                <td class="feature-name">Warrant canary</td>
+                <td><span class="badge badge-concept" style="display:inline-flex;">Concept</span></td>
+                <td><span class="badge badge-difficulty easy" style="display:inline-flex;">Easy</span></td>
+                <td style="color:var(--cyan);font-weight:600;">P2</td>
+                <td style="color:var(--text-muted)">Signed public statement</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Google Sign-In SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+/* ─── State ─── */
+let idToken = null;
+
+/* ─── Google Sign-In callback ─── */
+async function handleCredentialResponse(response) {
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      errEl.textContent = data.error || 'Access denied.';
+      errEl.style.display = 'block';
+      return;
+    }
+    idToken = response.credential;
+    showDashboard(data.user);
+  } catch (e) {
+    errEl.textContent = 'Authentication failed. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function showDashboard(user) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('admin-dashboard').style.display = 'block';
+  document.getElementById('user-email').textContent = user.email;
+  if (user.picture) {
+    document.getElementById('user-avatar').src = user.picture;
+  }
+}
+
+function signOut() {
+  idToken = null;
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  google.accounts.id.disableAutoSelect();
+}
+
+/* ─── Inject client ID ─── */
+(function() {
+  const onloadDiv = document.getElementById('g_id_onload');
+  if (onloadDiv && onloadDiv.dataset.client_id === '__GOOGLE_CLIENT_ID__') {
+    fetch('/api/admin-auth?client_id=1')
+      .then(r => r.json())
+      .then(d => {
+        if (d.clientId) {
+          onloadDiv.dataset.client_id = d.clientId;
+          if (window.google && google.accounts) {
+            google.accounts.id.initialize({
+              client_id: d.clientId,
+              callback: handleCredentialResponse,
+            });
+            google.accounts.id.renderButton(
+              document.querySelector('.g_id_signin'),
+              { theme: 'filled_black', size: 'large', shape: 'pill', text: 'sign_in_with' }
+            );
+          }
+        }
+      })
+      .catch(() => {
+        document.getElementById('auth-error').textContent = 'Admin not configured. Set GOOGLE_CLIENT_ID env var.';
+        document.getElementById('auth-error').style.display = 'block';
+      });
+  }
+})();
+</script>
+
+</body>
+</html>
