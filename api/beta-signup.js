@@ -88,13 +88,81 @@ async function supabaseUpsert(email, meta) {
   return Array.isArray(data) && data[0] ? data[0] : null;
 }
 
-async function maybeNotifyResend({ email }) {
+async function sendConfirmationEmail({ email }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: false, reason: 'not_configured' };
+
+  const from = 'Drop City <onboarding@resend.dev>';
+  
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
+      <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">Welcome to Drop City!</h1>
+    </div>
+    <div style="padding: 40px 30px;">
+      <p style="margin: 0 0 20px; font-size: 18px; color: #333333; line-height: 1.6;">
+        Hey there! 👋
+      </p>
+      <p style="margin: 0 0 20px; font-size: 16px; color: #555555; line-height: 1.6;">
+        Thanks for signing up for the <strong>Drop City beta</strong>! You're officially on the list.
+      </p>
+      <p style="margin: 0 0 20px; font-size: 16px; color: #555555; line-height: 1.6;">
+        We're building something special, and we can't wait to have you be part of it. We'll reach out soon with early access details and updates.
+      </p>
+      <p style="margin: 0 0 20px; font-size: 16px; color: #555555; line-height: 1.6;">
+        In the meantime, stay tuned! ✨
+      </p>
+      <div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #667eea; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #666666; line-height: 1.5;">
+          <strong>What's next?</strong><br>
+          We'll send you updates as we get closer to launch. Keep an eye on your inbox!
+        </p>
+      </div>
+    </div>
+    <div style="padding: 20px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; text-align: center;">
+      <p style="margin: 0; font-size: 14px; color: #999999;">
+        Drop City &copy; 2026 | Building the future together
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: email,
+      subject: 'Welcome to the Drop City beta! 🎉',
+      html: htmlBody,
+    }),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    console.warn('Resend confirmation failed', resp.status, text);
+    return { sent: false, reason: `resend_${resp.status}` };
+  }
+
+  return { sent: true };
+}
+
+async function maybeNotifyAdmin({ email }) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.NOTIFY_EMAIL;
   if (!apiKey || !to) return { sent: false, reason: 'not_configured' };
 
-  // Using Resend's simple /emails endpoint.
-  // NOTE: You may want to verify a domain in Resend and use a custom from.
   const from = 'Drop City <onboarding@resend.dev>';
 
   const resp = await fetch('https://api.resend.com/emails', {
@@ -113,8 +181,7 @@ async function maybeNotifyResend({ email }) {
 
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
-    // Don't fail the signup if email notification fails.
-    console.warn('Resend notify failed', resp.status, text);
+    console.warn('Resend admin notify failed', resp.status, text);
     return { sent: false, reason: `resend_${resp.status}` };
   }
 
@@ -161,7 +228,11 @@ export default async function handler(req, res) {
     return json(res, 500, { ok: false, error: 'Signup failed. Please try again later.' });
   }
 
-  const notify = await maybeNotifyResend({ email });
+  // Send confirmation email to the user and admin notification
+  const [confirmation, adminNotify] = await Promise.all([
+    sendConfirmationEmail({ email }),
+    maybeNotifyAdmin({ email }),
+  ]);
 
-  return json(res, 200, { ok: true, email, notify });
+  return json(res, 200, { ok: true, email, confirmation, adminNotify });
 }
