@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Release Strategy — Drop City</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy:        #0A1F5C;
+  --navy-deep:   #060F30;
+  --coral:       #E8654A;
+  --pink-soft:   #E8A8C0;
+  --hot-pink:    #E0287D;
+  --cyan:        #3DD9D9;
+  --aqua:        #5CE0E0;
+  --sky:         #4AADCE;
+  --rose:        #F27088;
+  --bg:          #060F30;
+  --text:        #F0F0EC;
+  --text-muted:  rgba(240, 240, 236, 0.5);
+  --surface:     rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --border:      rgba(255,255,255,0.08);
+  --green:       #34D399;
+  --yellow:      #FBBF24;
+  --orange:      #F97316;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--hot-pink); color: var(--text); }
+
+/* Layout */
+.admin-shell { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.admin-header h1 {
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, var(--cyan), var(--hot-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.admin-header .user-info {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--text-muted);
+}
+.admin-header .user-info img {
+  width: 32px; height: 32px; border-radius: 50%;
+}
+.btn-signout {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.btn-signout:hover { background: var(--surface-hover); color: var(--text); }
+
+/* Navigation tabs */
+.nav-tabs {
+  display: flex; gap: 0; margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-top: 16px;
+}
+.nav-tab {
+  padding: 10px 20px; font-size: 14px; font-weight: 600;
+  color: var(--text-muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
+/* Auth screen */
+#auth-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80vh; text-align: center;
+}
+#auth-screen h2 { font-size: 28px; margin-bottom: 8px; }
+#auth-screen p { color: var(--text-muted); margin-bottom: 32px; font-size: 15px; }
+#auth-error {
+  color: var(--coral); font-size: 14px; margin-top: 16px;
+  display: none;
+}
+
+/* Launch Bundle Banner */
+.launch-bundle {
+  background: linear-gradient(135deg, rgba(61, 217, 217, 0.08), rgba(224, 40, 125, 0.08));
+  border: 1px solid rgba(61, 217, 217, 0.2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+}
+.launch-bundle h2 {
+  font-size: 20px; font-weight: 700; margin-bottom: 6px;
+  background: linear-gradient(135deg, var(--cyan), var(--hot-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.launch-bundle .subtitle {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 20px;
+}
+.bundle-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.bundle-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.bundle-item .bundle-num {
+  font-size: 11px; font-weight: 700; color: var(--cyan);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+}
+.bundle-item h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.bundle-item .bundle-role {
+  font-size: 12px; color: var(--text-muted); font-style: italic;
+}
+.bundle-phases {
+  margin-top: 20px; display: flex; gap: 16px; flex-wrap: wrap;
+}
+.bundle-phase {
+  font-size: 13px; color: var(--text-muted);
+}
+.bundle-phase strong { color: var(--text); }
+
+/* Strategy Cards */
+.strategy-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+.strategy-card:hover { border-color: rgba(255,255,255,0.12); }
+.strategy-card.selected {
+  border-color: rgba(61, 217, 217, 0.3);
+  box-shadow: 0 0 0 1px rgba(61, 217, 217, 0.1);
+}
+
+.strategy-header {
+  display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px;
+}
+.strategy-check {
+  margin-top: 3px; flex-shrink: 0;
+}
+.strategy-check input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: transparent; cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.strategy-check input[type="checkbox"]:checked {
+  background: var(--cyan); border-color: var(--cyan);
+}
+.strategy-check input[type="checkbox"]:checked::after {
+  content: '✓'; color: var(--bg); font-size: 14px; font-weight: 700;
+}
+.strategy-check input[type="checkbox"]:hover {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.strategy-title-block { flex: 1; }
+.strategy-title-block h3 {
+  font-size: 18px; font-weight: 700; margin-bottom: 4px;
+}
+.strategy-title-block .strategy-desc {
+  font-size: 14px; color: var(--text-muted); line-height: 1.5;
+}
+
+.strategy-badges {
+  display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-must {
+  background: rgba(52, 211, 153, 0.12); color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+.badge-nice {
+  background: rgba(251, 191, 36, 0.12); color: var(--yellow);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+.badge-post {
+  background: rgba(249, 115, 22, 0.12); color: var(--orange);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+.badge-complexity {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.badge-complexity.low { color: var(--green); border-color: rgba(52,211,153,0.15); }
+.badge-complexity.medium { color: var(--yellow); border-color: rgba(251,191,36,0.15); }
+.badge-complexity.high { color: var(--coral); border-color: rgba(232,101,74,0.15); }
+
+.strategy-body { padding-left: 36px; }
+
+.strategy-section {
+  margin-bottom: 16px;
+}
+.strategy-section h4 {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;
+}
+.strategy-section p, .strategy-section ul {
+  font-size: 14px; color: rgba(240, 240, 236, 0.8); line-height: 1.7;
+}
+.strategy-section ul {
+  list-style: none; padding: 0;
+}
+.strategy-section ul li {
+  position: relative; padding-left: 16px; margin-bottom: 4px;
+}
+.strategy-section ul li::before {
+  content: '→'; position: absolute; left: 0; color: var(--cyan); font-size: 12px;
+}
+
+.k-factor {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(61, 217, 217, 0.06);
+  border: 1px solid rgba(61, 217, 217, 0.12);
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 14px;
+}
+.k-factor .k-value {
+  font-weight: 700; color: var(--cyan); font-size: 16px;
+}
+
+.strategy-notes {
+  margin-top: 16px; padding-left: 36px;
+}
+.strategy-notes label {
+  display: block; font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); margin-bottom: 6px;
+}
+.strategy-notes textarea {
+  width: 100%; min-height: 72px; padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px;
+  line-height: 1.6; resize: vertical; transition: border-color 0.2s;
+}
+.strategy-notes textarea::placeholder { color: var(--text-muted); }
+.strategy-notes textarea:focus {
+  outline: none; border-color: rgba(61, 217, 217, 0.3);
+}
+
+/* Comparison Table */
+.comparison-section {
+  margin-top: 40px;
+}
+.comparison-section h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 16px;
+}
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; padding: 12px 14px; font-weight: 600; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02); white-space: nowrap;
+}
+tbody td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-hover); }
+td.strategy-name { font-weight: 600; white-space: nowrap; }
+
+/* Anti-patterns */
+.antipatterns {
+  margin-top: 40px;
+  background: rgba(232, 101, 74, 0.04);
+  border: 1px solid rgba(232, 101, 74, 0.12);
+  border-radius: 14px;
+  padding: 24px 28px;
+}
+.antipatterns h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--coral);
+}
+.antipatterns ol {
+  list-style: none; padding: 0; counter-reset: anti;
+}
+.antipatterns ol li {
+  counter-increment: anti;
+  position: relative; padding-left: 32px;
+  margin-bottom: 12px; font-size: 14px;
+  color: rgba(240, 240, 236, 0.8); line-height: 1.6;
+}
+.antipatterns ol li::before {
+  content: counter(anti);
+  position: absolute; left: 0; top: 1px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(232, 101, 74, 0.12);
+  color: var(--coral); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.antipatterns ol li strong { color: var(--text); }
+
+/* Cold start */
+.cold-start {
+  margin-top: 32px;
+  background: rgba(61, 217, 217, 0.04);
+  border: 1px solid rgba(61, 217, 217, 0.12);
+  border-radius: 14px;
+  padding: 24px 28px;
+}
+.cold-start h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--cyan);
+}
+.cold-start p {
+  font-size: 14px; color: rgba(240, 240, 236, 0.8); line-height: 1.7;
+  margin-bottom: 12px;
+}
+.cold-start ul {
+  list-style: none; padding: 0;
+}
+.cold-start ul li {
+  position: relative; padding-left: 16px; margin-bottom: 6px;
+  font-size: 14px; color: rgba(240,240,236,0.8);
+}
+.cold-start ul li::before {
+  content: '→'; position: absolute; left: 0; color: var(--cyan);
+}
+
+/* Save indicator */
+.save-indicator {
+  position: fixed; bottom: 24px; right: 24px;
+  background: rgba(52, 211, 153, 0.9); color: var(--bg);
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  opacity: 0; transform: translateY(8px);
+  transition: all 0.3s; pointer-events: none;
+  z-index: 100;
+}
+.save-indicator.show {
+  opacity: 1; transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .admin-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .bundle-grid { grid-template-columns: 1fr; }
+  .strategy-header { flex-direction: column; }
+  .strategy-badges { justify-content: flex-start; }
+  .strategy-body, .strategy-notes { padding-left: 0; }
+  .strategy-card { padding: 20px; }
+  .bundle-phases { flex-direction: column; gap: 8px; }
+  .nav-tabs { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <h2>Drop City Admin</h2>
+  <p>Sign in with your authorized Google account to continue.</p>
+  <div id="g_id_onload"
+       data-client_id="__GOOGLE_CLIENT_ID__"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="filled_black"
+       data-text="sign_in_with"
+       data-shape="pill"
+       data-logo_alignment="left">
+  </div>
+  <div id="auth-error"></div>
+</div>
+
+<!-- Admin Dashboard (hidden until authed) -->
+<div id="admin-dashboard" style="display:none;">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Drop City Admin</h1>
+      <div class="user-info">
+        <span id="user-email"></span>
+        <img id="user-avatar" src="" alt="" />
+        <button class="btn-signout" onclick="signOut()">Sign Out</button>
+      </div>
+    </header>
+
+    <nav class="nav-tabs">
+      <a href="/admin" class="nav-tab">Dashboard</a>
+      <a href="/release" class="nav-tab active">Release Strategy</a>
+    </nav>
+
+    <div id="release-content">
+      <!-- Launch Bundle -->
+      <div class="launch-bundle">
+        <h2>🚀 Recommended Launch Bundle</h2>
+        <p class="subtitle">Ship these three for v1 — they cover foundation, conversion, and launch urgency.</p>
+        <div class="bundle-grid">
+          <div class="bundle-item">
+            <div class="bundle-num">① The Foundation</div>
+            <h3>Proof of Drop</h3>
+            <p class="bundle-role">Every drop → beautiful shareable image. Your air supply.</p>
+          </div>
+          <div class="bundle-item">
+            <div class="bundle-num">② The Hook</div>
+            <h3>The Ghost Tag</h3>
+            <p class="bundle-role">Tease but don't reveal. Curiosity converts impressions → installs.</p>
+          </div>
+          <div class="bundle-item">
+            <div class="bundle-num">③ The Accelerant</div>
+            <h3>First Blood</h3>
+            <p class="bundle-role">Land-rush mechanic. Time-limited weapon for launch density.</p>
+          </div>
+        </div>
+        <div class="bundle-phases">
+          <span class="bundle-phase"><strong>Month 1:</strong> Block Party (manual v1) + Drop Map Share</span>
+          <span class="bundle-phase"><strong>V2:</strong> Crew Up + The Portal</span>
+        </div>
+      </div>
+
+      <!-- Strategy 1: Ghost Tag -->
+      <div class="strategy-card" data-strategy="ghost-tag">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="ghost-tag" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 1: "The Ghost Tag"</h3>
+            <p class="strategy-desc">Shareable AR previews with the art partially obscured — full piece only visible in-app at the location.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-must">🟢 Must-have</span>
+            <span class="badge badge-complexity medium">⚙ Medium</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Users generate a shareable preview — a short video or image showing AR graffiti overlaid on the real-world location, but partially ghosted (40% opacity, blurred details, spray-paint smoke effect). The full piece is only visible in-app at the location. Share card reads: <em>"[username] dropped something at [location]. Open Drop City to see it."</em></p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Graffiti culture already has this mechanic — you see a tag and wonder "who did that?"</li>
+              <li>The ghosted preview creates genuine FOMO without being manipulative</li>
+              <li>Shares actual content, which always converts higher than generic invites</li>
+              <li>The preview is inherently interesting (AR art in a real place is novel enough to stop a scroll)</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.3–0.5</span>
+              <span style="color:var(--text-muted);font-size:13px;">per shared drop</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>iMessage, DMs, Social</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="ghost-tag" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 2: Crew Up -->
+      <div class="strategy-card" data-strategy="crew-up">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="crew-up" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 2: "Crew Up"</h3>
+            <p class="strategy-desc">Users form Crews (2-8 people) with shared tags, territory mechanics, and leaderboards. Proximity-based invites.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-nice">🟡 Nice-to-have</span>
+            <span class="badge badge-complexity high">⚙ High</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Crews have a shared tag/logo, leaderboards, and territory bonuses when multiple members drop in the same area. Crew invites require physical proximity or a 24h-expiry share link. Crew names appear on "who runs this block" neighborhood leaderboards.</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Graffiti culture IS crew culture — this is authentic, not bolted-on</li>
+              <li>Territory mechanics create natural network effects</li>
+              <li>"Join my crew" is more compelling than "download this app"</li>
+              <li>Proximity requirement creates dense local pockets of activity</li>
+              <li>Social obligation — your crew is counting on you to drop</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.15–0.2</span>
+              <span style="color:var(--text-muted);font-size:13px;">blended across full user base</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>IRL + In-app</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="crew-up" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 3: Drop Map Share -->
+      <div class="strategy-card" data-strategy="drop-map">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="drop-map" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 3: "The Drop Map Share"</h3>
+            <p class="strategy-desc">Personal drop maps in graffiti aesthetic — Spotify Wrapped for your city. Shareable to Stories, TikTok, X.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-must">🟢 Must-have</span>
+            <span class="badge badge-complexity medium">⚙ Low-Medium</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Users generate a stylized map showing everywhere they've dropped — dark map tiles, neon pin markers, spray-paint splatters for density. Includes username, drop count, city stats, and QR code. Weekly/monthly recap maps auto-generate ("Your January — 47 drops across 12 neighborhoods").</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Location data visualized as art is inherently shareable</li>
+              <li>Graffiti aesthetic makes maps look COOL — not corporate</li>
+              <li>Maps show "proof of work" — I was HERE, I made THIS</li>
+              <li>Neighborhood flex creates friendly competition</li>
+              <li>Native content for Stories/TikTok — visual, personal, prompts responses</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.2–0.4</span>
+              <span style="color:var(--text-muted);font-size:13px;">for users who share maps</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>Instagram, TikTok, X</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="drop-map" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 4: First Blood -->
+      <div class="strategy-card" data-strategy="first-blood">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="first-blood" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 4: "First Blood"</h3>
+            <p class="strategy-desc">Be the first to drop at a location — permanent attribution plaque. Creates a land rush at launch.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-must">🟢 Must-have</span>
+            <span class="badge badge-complexity low">⚙ Low</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>First person to drop at a new location earns a "First Blood" marker — permanent watermark/plaque: <em>"First tagged by @username on [date]"</em>. Discovery notifications when others find your First Blood. Shareable "claim" cards provoke others to claim unclaimed spots.</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Writers are obsessed with being first — the first to tag a virgin wall is primal</li>
+              <li>Creates an exploration land rush at launch</li>
+              <li>Permanent attribution satisfies the ego/legacy motivation</li>
+              <li>"No one's tagged the Brooklyn Bridge yet?!" → motivation to go do it</li>
+              <li>Discovery notifications create parasocial connections between early and late users</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.15–0.25</span>
+              <span style="color:var(--text-muted);font-size:13px;">modest virality, HIGH retention impact</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>Social + Word of mouth</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="first-blood" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 5: The Portal -->
+      <div class="strategy-card" data-strategy="portal">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="portal" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 5: "The Portal"</h3>
+            <p class="strategy-desc">Rare weekly drops that grant invite codes with cosmetic rewards. Scarcity + delight = high-quality conversions.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-nice">🟡 Nice-to-have</span>
+            <span class="badge badge-complexity medium">⚙ Medium</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Each user gets 1 Portal per week — a special drop only visible to non-friends. When discovered, reveals unique content AND gives the discoverer a one-time invite code granting both parties cosmetic rewards (exclusive spray can colors, brush styles). Users strategize placement for maximum discovery.</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Scarcity makes it special — 1/week means careful placement</li>
+              <li>Referral trigger happens at a moment of delight</li>
+              <li>Rewards are cosmetic/creative — aligned with artistic identity</li>
+              <li>Finding a portal feels like finding a hidden gem IRL</li>
+              <li>Creates a secondary game: "where should I place my portal this week?"</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.1–0.2</span>
+              <span style="color:var(--text-muted);font-size:13px;">low volume, high-quality conversions</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>In-app → DMs</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="portal" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 6: Proof of Drop -->
+      <div class="strategy-card" data-strategy="proof-of-drop">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="proof-of-drop" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 6: "Proof of Drop" (Social Screenshots)</h3>
+            <p class="strategy-desc">Every drop auto-generates a beautiful share card — AR content + location + tag + QR. The primary volume driver.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-must">🟢 Must-have</span>
+            <span class="badge badge-complexity low">⚙ Low</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Every drop generates a "Proof of Drop" card — AR content overlaid on real location, user tag, neighborhood-level location, timestamp, Drop City watermark + QR code. Optimized for Instagram Stories (9:16), Twitter/X (16:9), and iMessage (square). Interesting enough to share even if viewers never download.</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Removes all friction — every drop is already shareable content</li>
+              <li>AR overlays on real locations are still novel enough to stop scrolls</li>
+              <li>Watermark/QR turns every shared image into a passive ad (earned, not forced)</li>
+              <li>AR graffiti on real streets stands out from flat content</li>
+              <li>Slots into existing #streetart behavior (70M+ Instagram posts)</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.3–0.6</span>
+              <span style="color:var(--text-muted);font-size:13px;">highest-volume channel</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>All social platforms</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="proof-of-drop" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Strategy 7: Block Party -->
+      <div class="strategy-card" data-strategy="block-party">
+        <div class="strategy-header">
+          <div class="strategy-check">
+            <input type="checkbox" data-key="block-party" onchange="saveState(this)" />
+          </div>
+          <div class="strategy-title-block">
+            <h3>Strategy 7: "The Block Party"</h3>
+            <p class="strategy-desc">Limited-time events in specific neighborhoods. Live counters, bonuses, and crew competitions. Solves the cold start.</p>
+          </div>
+          <div class="strategy-badges">
+            <span class="badge badge-nice">🟡 Launch week+</span>
+            <span class="badge badge-complexity medium">⚙ Medium</span>
+          </div>
+        </div>
+        <div class="strategy-body">
+          <div class="strategy-section">
+            <h4>How It Works</h4>
+            <p>Drop City hosts limited-time events tied to neighborhoods: "Bushwick Block Party — this Saturday, every drop earns 2x rep." Live participant counter ("47 artists dropping right now"). Bonus rewards for bringing new users who drop during the event. Eventually user/crew-created.</p>
+          </div>
+          <div class="strategy-section">
+            <h4>Why It Works for Drop City</h4>
+            <ul>
+              <li>Creates time-bound density — solves the cold start by concentrating activity</li>
+              <li>Real graffiti culture has jams, battles, and meetups — this is the digital version</li>
+              <li>Live counters create social proof and FOMO</li>
+              <li>NYC-first launch can seed ~1 event/week across neighborhoods</li>
+              <li>Events give press/influencer hooks ("AR graffiti jam in SoHo this weekend")</li>
+            </ul>
+          </div>
+          <div class="strategy-section">
+            <h4>Viral Coefficient</h4>
+            <div class="k-factor">
+              <span class="k-value">k = 0.5–0.8</span>
+              <span style="color:var(--text-muted);font-size:13px;">burst during events (time-limited)</span>
+            </div>
+          </div>
+          <div class="strategy-section">
+            <h4>Primary Channel</h4>
+            <p>Social + Press</p>
+          </div>
+        </div>
+        <div class="strategy-notes">
+          <label>Notes</label>
+          <textarea data-notes-key="block-party" onchange="saveNotes(this)" placeholder="Jot your thoughts on this strategy…"></textarea>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="comparison-section">
+        <h2>Comparison Table</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>k-factor</th>
+                <th>Complexity</th>
+                <th>Priority</th>
+                <th>Channel</th>
+                <th>Growth Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="strategy-name">Ghost Tag</td>
+                <td>0.3–0.5</td>
+                <td><span class="badge badge-complexity medium" style="display:inline-flex;">Medium</span></td>
+                <td><span class="badge badge-must" style="display:inline-flex;">Must-have</span></td>
+                <td>iMessage, DMs, Social</td>
+                <td style="color:var(--text-muted)">Direct referral</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">Crew Up</td>
+                <td>0.15–0.2</td>
+                <td><span class="badge badge-complexity high" style="display:inline-flex;">High</span></td>
+                <td><span class="badge badge-nice" style="display:inline-flex;">Nice-to-have</span></td>
+                <td>IRL + In-app</td>
+                <td style="color:var(--text-muted)">Network/retention</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">Drop Map Share</td>
+                <td>0.2–0.4</td>
+                <td><span class="badge badge-complexity medium" style="display:inline-flex;">Low-Med</span></td>
+                <td><span class="badge badge-must" style="display:inline-flex;">Must-have</span></td>
+                <td>Instagram, TikTok, X</td>
+                <td style="color:var(--text-muted)">Broadcast/brand</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">First Blood</td>
+                <td>0.15–0.25</td>
+                <td><span class="badge badge-complexity low" style="display:inline-flex;">Low</span></td>
+                <td><span class="badge badge-must" style="display:inline-flex;">Must-have</span></td>
+                <td>Social + Word of mouth</td>
+                <td style="color:var(--text-muted)">Urgency/FOMO</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">The Portal</td>
+                <td>0.1–0.2</td>
+                <td><span class="badge badge-complexity medium" style="display:inline-flex;">Medium</span></td>
+                <td><span class="badge badge-nice" style="display:inline-flex;">Nice-to-have</span></td>
+                <td>In-app → DMs</td>
+                <td style="color:var(--text-muted)">High-quality referral</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">Proof of Drop</td>
+                <td>0.3–0.6</td>
+                <td><span class="badge badge-complexity low" style="display:inline-flex;">Low</span></td>
+                <td><span class="badge badge-must" style="display:inline-flex;">Must-have</span></td>
+                <td>All social platforms</td>
+                <td style="color:var(--text-muted)">Broadcast/organic</td>
+              </tr>
+              <tr>
+                <td class="strategy-name">Block Party</td>
+                <td>0.5–0.8</td>
+                <td><span class="badge badge-complexity medium" style="display:inline-flex;">Medium</span></td>
+                <td><span class="badge badge-nice" style="display:inline-flex;">Launch week+</span></td>
+                <td>Social + Press</td>
+                <td style="color:var(--text-muted)">Event-driven burst</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Anti-Patterns -->
+      <div class="antipatterns">
+        <h2>⚠ Anti-Patterns to Avoid</h2>
+        <ol>
+          <li><strong>Forced sharing gates</strong> — Never lock core features behind "invite 3 friends." Feels desperate, kills goodwill.</li>
+          <li><strong>Notification spam</strong> — "Your friend dropped near you!" is useful once. The 47th time it's an uninstall trigger.</li>
+          <li><strong>Fake scarcity</strong> — "Only 100 spots left!" when there are unlimited. Real scarcity (First Blood, Portals) works. Manufactured scarcity backfires.</li>
+          <li><strong>Reward-only referrals</strong> — "Get 500 coins for inviting a friend" without genuine reason to join. Content IS the referral.</li>
+          <li><strong>Ignoring the cold start</strong> — Every strategy should be evaluated: "Does this help solve the cold start in NYC neighborhoods?"</li>
+          <li><strong>Over-indexing on digital</strong> — Drop City's magic is IRL. Best "growth hack" might be spray-painting QR codes on stickers around NYC.</li>
+        </ol>
+      </div>
+
+      <!-- Cold Start Note -->
+      <div class="cold-start">
+        <h2>💡 A Note on the Cold Start</h2>
+        <p>The honest truth: <strong>no referral mechanic matters if someone opens the app and sees nothing nearby.</strong></p>
+        <p>Before launch, consider:</p>
+        <ul>
+          <li><strong>Seed drops</strong> in key NYC neighborhoods (the team drops interesting content)</li>
+          <li><strong>Recruit 50-100 street artists</strong> for a pre-launch "first wave"</li>
+          <li><strong>Concentrate launch geographically</strong> — better to have 500 users in Williamsburg than 500 across all NYC</li>
+          <li><strong>Block Party strategy</strong> is specifically designed to create temporal density — use it aggressively in month one</li>
+        </ul>
+        <p style="margin-top:12px;font-style:italic;color:var(--text-muted);">The referral strategies above will amplify whatever initial density you create. They won't create it from zero.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-indicator" id="save-indicator">✓ Saved</div>
+
+<!-- Google Sign-In SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+/* ─── State ─── */
+let idToken = null;
+const STORAGE_KEY = 'dropcity-release-state';
+
+/* ─── Google Sign-In callback ─── */
+async function handleCredentialResponse(response) {
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      errEl.textContent = data.error || 'Access denied.';
+      errEl.style.display = 'block';
+      return;
+    }
+    idToken = response.credential;
+    showDashboard(data.user);
+    loadSavedState();
+  } catch (e) {
+    errEl.textContent = 'Authentication failed. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function showDashboard(user) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('admin-dashboard').style.display = 'block';
+  document.getElementById('user-email').textContent = user.email;
+  if (user.picture) {
+    document.getElementById('user-avatar').src = user.picture;
+  }
+}
+
+function signOut() {
+  idToken = null;
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  google.accounts.id.disableAutoSelect();
+}
+
+/* ─── Local Storage State ─── */
+function getSavedData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function loadSavedState() {
+  const saved = getSavedData();
+
+  // Restore checkboxes
+  document.querySelectorAll('input[data-key]').forEach(cb => {
+    const key = cb.dataset.key;
+    if (saved.checked && saved.checked[key]) {
+      cb.checked = true;
+      cb.closest('.strategy-card').classList.add('selected');
+    }
+  });
+
+  // Restore notes
+  document.querySelectorAll('textarea[data-notes-key]').forEach(ta => {
+    const key = ta.dataset.notesKey;
+    if (saved.notes && saved.notes[key]) {
+      ta.value = saved.notes[key];
+    }
+  });
+}
+
+function saveState(checkbox) {
+  const saved = getSavedData();
+  if (!saved.checked) saved.checked = {};
+  saved.checked[checkbox.dataset.key] = checkbox.checked;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+
+  // Toggle card highlight
+  const card = checkbox.closest('.strategy-card');
+  if (checkbox.checked) {
+    card.classList.add('selected');
+  } else {
+    card.classList.remove('selected');
+  }
+
+  showSaveIndicator();
+}
+
+function saveNotes(textarea) {
+  const saved = getSavedData();
+  if (!saved.notes) saved.notes = {};
+  saved.notes[textarea.dataset.notesKey] = textarea.value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  showSaveIndicator();
+}
+
+let saveTimeout;
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  el.classList.add('show');
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+/* ─── Inject client ID from meta or placeholder ─── */
+(function() {
+  const onloadDiv = document.getElementById('g_id_onload');
+  if (onloadDiv && onloadDiv.dataset.client_id === '__GOOGLE_CLIENT_ID__') {
+    fetch('/api/admin-auth?client_id=1')
+      .then(r => r.json())
+      .then(d => {
+        if (d.clientId) {
+          onloadDiv.dataset.client_id = d.clientId;
+          if (window.google && google.accounts) {
+            google.accounts.id.initialize({
+              client_id: d.clientId,
+              callback: handleCredentialResponse,
+            });
+            google.accounts.id.renderButton(
+              document.querySelector('.g_id_signin'),
+              { theme: 'filled_black', size: 'large', shape: 'pill', text: 'sign_in_with' }
+            );
+          }
+        }
+      })
+      .catch(() => {
+        document.getElementById('auth-error').textContent = 'Admin not configured. Set GOOGLE_CLIENT_ID env var.';
+        document.getElementById('auth-error').style.display = 'block';
+      });
+  }
+})();
+</script>
+
+</body>
+</html>

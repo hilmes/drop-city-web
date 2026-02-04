@@ -43,8 +43,27 @@ body {
 .admin-shell { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
 .admin-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 40px; padding-bottom: 20px;
+  margin-bottom: 0; padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
+}
+
+/* Navigation tabs */
+.nav-tabs {
+  display: flex; gap: 0; margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-top: 16px;
+}
+.nav-tab {
+  padding: 10px 20px; font-size: 14px; font-weight: 600;
+  color: var(--text-muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
 }
 .admin-header h1 {
   font-size: 24px; font-weight: 700;
@@ -179,6 +198,11 @@ td.date { color: var(--text-muted); font-size: 13px; white-space: nowrap; }
         <button class="btn-signout" onclick="signOut()">Sign Out</button>
       </div>
     </header>
+
+    <nav class="nav-tabs">
+      <a href="/admin" class="nav-tab active">Dashboard</a>
+      <a href="/release" class="nav-tab">Release Strategy</a>
+    </nav>
 
     <div id="dashboard-content">
       <div class="loading">
