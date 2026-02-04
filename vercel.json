@@ -2,6 +2,15 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/admin.html", "destination": "/admin/", "permanent": true },
+    { "source": "/release", "destination": "/admin/release", "permanent": true },
+    { "source": "/release.html", "destination": "/admin/release", "permanent": true },
+    { "source": "/inspiration", "destination": "/admin/inspiration", "permanent": true },
+    { "source": "/inspiration.html", "destination": "/admin/inspiration", "permanent": true },
+    { "source": "/adversarial", "destination": "/admin/adversarial", "permanent": true },
+    { "source": "/adversarial.html", "destination": "/admin/adversarial", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
