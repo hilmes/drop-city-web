@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Drop City</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy:        #0A1F5C;
+  --navy-deep:   #060F30;
+  --coral:       #E8654A;
+  --pink-soft:   #E8A8C0;
+  --hot-pink:    #E0287D;
+  --cyan:        #3DD9D9;
+  --aqua:        #5CE0E0;
+  --sky:         #4AADCE;
+  --rose:        #F27088;
+  --bg:          #060F30;
+  --text:        #F0F0EC;
+  --text-muted:  rgba(240, 240, 236, 0.5);
+  --surface:     rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --border:      rgba(255,255,255,0.08);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--hot-pink); color: var(--text); }
+
+/* Layout */
+.admin-shell { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 40px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.admin-header h1 {
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, var(--cyan), var(--hot-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.admin-header .user-info {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--text-muted);
+}
+.admin-header .user-info img {
+  width: 32px; height: 32px; border-radius: 50%;
+}
+.btn-signout {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.btn-signout:hover { background: var(--surface-hover); color: var(--text); }
+
+/* Auth screen */
+#auth-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80vh; text-align: center;
+}
+#auth-screen h2 { font-size: 28px; margin-bottom: 8px; }
+#auth-screen p { color: var(--text-muted); margin-bottom: 32px; font-size: 15px; }
+#auth-error {
+  color: var(--coral); font-size: 14px; margin-top: 16px;
+  display: none;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.stat-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card .value { font-size: 32px; font-weight: 700; margin-top: 4px; }
+.stat-card .value.cyan { color: var(--cyan); }
+.stat-card .value.pink { color: var(--hot-pink); }
+.stat-card .value.coral { color: var(--coral); }
+.stat-card .value.sky { color: var(--sky); }
+
+/* Table */
+.table-section h2 {
+  font-size: 18px; font-weight: 600; margin-bottom: 16px;
+}
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  text-align: left; padding: 12px 16px; font-weight: 600; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+tbody td {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-hover); }
+td.email { font-family: monospace; font-size: 13px; }
+td.source { color: var(--text-muted); font-size: 12px; }
+td.date { color: var(--text-muted); font-size: 13px; white-space: nowrap; }
+
+/* Loading */
+.loading {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted); font-size: 14px;
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--border);
+  border-top-color: var(--cyan); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error state */
+.error-msg {
+  text-align: center; padding: 40px 20px;
+  color: var(--coral); font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .admin-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  table { font-size: 13px; }
+  thead th, tbody td { padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <h2>Drop City Admin</h2>
+  <p>Sign in with your authorized Google account to continue.</p>
+  <div id="g_id_onload"
+       data-client_id="__GOOGLE_CLIENT_ID__"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="filled_black"
+       data-text="sign_in_with"
+       data-shape="pill"
+       data-logo_alignment="left">
+  </div>
+  <div id="auth-error"></div>
+</div>
+
+<!-- Admin Dashboard (hidden until authed) -->
+<div id="admin-dashboard" style="display:none;">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Drop City Admin</h1>
+      <div class="user-info">
+        <span id="user-email"></span>
+        <img id="user-avatar" src="" alt="" />
+        <button class="btn-signout" onclick="signOut()">Sign Out</button>
+      </div>
+    </header>
+
+    <div id="dashboard-content">
+      <div class="loading">
+        <div class="spinner"></div>
+        Loading signups…
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Google Sign-In SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+/* ─── State ─── */
+let idToken = null;
+
+/* ─── Google Sign-In callback ─── */
+async function handleCredentialResponse(response) {
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      errEl.textContent = data.error || 'Access denied.';
+      errEl.style.display = 'block';
+      return;
+    }
+    idToken = response.credential;
+    showDashboard(data.user);
+    loadSignups();
+  } catch (e) {
+    errEl.textContent = 'Authentication failed. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function showDashboard(user) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('admin-dashboard').style.display = 'block';
+  document.getElementById('user-email').textContent = user.email;
+  if (user.picture) {
+    document.getElementById('user-avatar').src = user.picture;
+  }
+}
+
+function signOut() {
+  idToken = null;
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  // Clear Google's session
+  google.accounts.id.disableAutoSelect();
+}
+
+/* ─── Load signups data ─── */
+async function loadSignups() {
+  const container = document.getElementById('dashboard-content');
+  try {
+    const res = await fetch('/api/admin-signups', {
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      container.innerHTML = `<div class="error-msg">Error: ${data.error || 'Failed to load'}</div>`;
+      return;
+    }
+    renderDashboard(data);
+  } catch (e) {
+    container.innerHTML = '<div class="error-msg">Failed to load signup data.</div>';
+  }
+}
+
+/* ─── Render dashboard ─── */
+function renderDashboard(data) {
+  const { signups, stats } = data;
+  const container = document.getElementById('dashboard-content');
+
+  // Stats
+  const today = new Date(); today.setHours(0,0,0,0);
+  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const todayCount = signups.filter(s => new Date(s.created_at) >= today).length;
+  const weekCount = signups.filter(s => new Date(s.created_at) >= weekAgo).length;
+
+  // Sources breakdown
+  const sources = {};
+  signups.forEach(s => {
+    const src = s.source || 'unknown';
+    sources[src] = (sources[src] || 0) + 1;
+  });
+  const topSource = Object.entries(sources).sort((a,b) => b[1]-a[1])[0];
+
+  let html = `
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="label">Total Signups</div>
+        <div class="value cyan">${stats.total}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Today</div>
+        <div class="value pink">${todayCount}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Last 7 Days</div>
+        <div class="value coral">${weekCount}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Top Source</div>
+        <div class="value sky" style="font-size:18px;">${topSource ? `${topSource[0]} (${topSource[1]})` : '—'}</div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h2>Beta Signups</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Email</th>
+              <th>Source</th>
+              <th>Signed Up</th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+
+  if (signups.length === 0) {
+    html += '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:30px;">No signups yet.</td></tr>';
+  } else {
+    signups.forEach((s, i) => {
+      const d = new Date(s.created_at);
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      html += `
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">${signups.length - i}</td>
+          <td class="email">${escHtml(s.email)}</td>
+          <td class="source">${escHtml(s.source || '—')}</td>
+          <td class="date">${dateStr} ${timeStr}</td>
+        </tr>
+      `;
+    });
+  }
+
+  html += '</tbody></table></div></div>';
+  container.innerHTML = html;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ─── Inject client ID from meta or placeholder ─── */
+(function() {
+  // The client ID placeholder will be replaced at build time or via env,
+  // but for Vercel we inject it via the serverless function approach.
+  // Check if it's still the placeholder — if so, try fetching from an endpoint.
+  const onloadDiv = document.getElementById('g_id_onload');
+  if (onloadDiv && onloadDiv.dataset.client_id === '__GOOGLE_CLIENT_ID__') {
+    fetch('/api/admin-auth?client_id=1')
+      .then(r => r.json())
+      .then(d => {
+        if (d.clientId) {
+          onloadDiv.dataset.client_id = d.clientId;
+          // Re-initialize GSI
+          if (window.google && google.accounts) {
+            google.accounts.id.initialize({
+              client_id: d.clientId,
+              callback: handleCredentialResponse,
+            });
+            google.accounts.id.renderButton(
+              document.querySelector('.g_id_signin'),
+              { theme: 'filled_black', size: 'large', shape: 'pill', text: 'sign_in_with' }
+            );
+          }
+        }
+      })
+      .catch(() => {
+        document.getElementById('auth-error').textContent = 'Admin not configured. Set GOOGLE_CLIENT_ID env var.';
+        document.getElementById('auth-error').style.display = 'block';
+      });
+  }
+})();
+</script>
+
+</body>
+</html>
